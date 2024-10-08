@@ -19,3 +19,71 @@ include:
 	fp.h:     everything you need to save the floating point state
 	lwp.h:    header for the LWP library
 	snakes.h: header for the snakes library
+
+
+
+____________________________________________________________________________________________________________________
+Task 1: Making the Round Robin Scheduler
+
+Pseudocode: the scheduler will be a round robin scheduler implemented with a circular linked list
+- first make a circular linked list. each node will represent each thread that is going to be scheduled
+- when new threads are created, they will be added to the end of the linked list (queue) 
+
+Structs: 
+
+schedulerInfo struct: keeps track of the start of the circular linked list and the amount of nodes
+- need this because later on I will need to know where my first thread is and how many there are total
+
+threadinfo_st struct: was given to us, holds all the data to the thread info
+- going to use that as each node in the circular linked list
+- the sched_one will be the ->next field, and the sched_two will be the ->prev field 
+
+Schedule struct: was given to us, has pointers to each function? acts like an interace? 
+- I dont know what this does or means yet
+
+Functions: 
+
+init(): supposed to be called before any threads are put in the scheduler
+- makes one of the nodes the head of the list
+- keep a count of how many threads are being scheduled
+
+admit(thread newThread): take the new thread and add it to the list
+- check if there is nothing in the list already
+	- that means this is the first node, so make it point to itself to keep it circular
+	- update in the global struct that this is the head
+- if the list is not empty, go through until you are at the end (until the next = head)
+- add the new node there
+- make its next point to the head and its prev is the node before it
+- make the one before it's next point to it
+
+remove(thread victim): takes a certain thread out of the list
+- check if there are no threads in there and if so, return NULL
+- if the thread to remove is the head and there are no other threads
+	- removing it means making all the pointers point to NULL
+- if the thread to remove is the head and there are more threads
+	- set the tails next to be the heads next
+	- set the heads next's prev to be the tail
+- if the thread to remove is the tail 
+	- set the tails prev nexts to be the head 
+	- set the heads prev to be the tails prev 
+- if the thread to remove is none of those and is somewhere in between 
+	- curent nodes prev's next is next 
+	- current nodes next's prev is prev
+
+thread next(): will tell you what the next thread is
+- check if there are any threads in the list, if not then return NULL
+- if there are, then return the current's next
+- update what the current will be
+
+int qlen():
+- just return the schedule.count
+
+void shutdown(): need to deallocate everything 
+- check if there is nothing in the list, if so, then return NULL
+- start at the head and iterate through them all
+	- deallocate the stuff for each node
+- set all the schedulerInfo struct to be NULLs 
+
+deallocateStuff(thread the_thread): should deallocate all the resources used by that respective thread
+- spec says to use munmap to free the stack
+- anything else need to be deallocated like registers? idk aobut that
