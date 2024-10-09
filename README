@@ -87,3 +87,18 @@ void shutdown(): need to deallocate everything
 deallocateStuff(thread the_thread): should deallocate all the resources used by that respective thread
 - spec says to use munmap to free the stack
 - anything else need to be deallocated like registers? idk aobut that
+____________________________________________________________________________________________________________________
+Task 2: write lwp_create();
+
+How to Go About it: 
+
+- Allocate enough stack size using mmap 
+- set up all the context
+	- the registers, the stack pointers
+- call admit and add the thread to the scheduler
+
+Stacks:
+- we are using mmap because that creates independent sections of memory
+- we can tell if where to create that and how much to give and a bunch of permissions
+- mmap returns a pointer to where that memory chunk starts? 
+- 
