@@ -53,8 +53,8 @@ typedef struct threadinfo_st {
   size_t        stacksize;      /* Size of allocated stack */
   rfile         state;          /* saved registers         */
   unsigned int  status;         /* exited? exit status?    */
-  thread        lib_next;        /* Two pointers reserved   */
-  thread        lib_prev;        /* for use by the library  */
+  thread        lib_tl_next;        /* Two pointers reserved   */
+  thread        lib_wl_next;        /* for use by the library  */
   thread        sched_next;      /* Two more for            */
   thread        sched_prev;      /* schedulers to use       */
   thread        exited;         /* and one for lwp_wait()  */

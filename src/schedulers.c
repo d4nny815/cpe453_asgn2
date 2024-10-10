@@ -2,11 +2,10 @@
 
 void print_active_threads();
 
-// TODO: danny fix this
 struct SchedulerInfo_t {
-    thread active_thread;  // the first thread in the scheduler
+    thread active_thread;   // the first thread in the scheduler
     thread tail;
-    int count;    // the count of how many total threads in scheduler currently
+    int count;              // amount of threads in scheduler 
 } schedule = (struct SchedulerInfo_t) {NULL, NULL, 0};
 
 struct scheduler rr = {NULL, NULL, rr_admit, rr_remove, next, qlen};
