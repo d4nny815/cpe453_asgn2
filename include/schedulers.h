@@ -12,6 +12,6 @@ extern scheduler ChooseLowestColor;
 void rr_admit(thread new_thread);
 void rr_remove(thread victim);
 void next();
-void qlen();
+int qlen();
 
 #endif

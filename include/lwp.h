@@ -1,9 +1,9 @@
 #ifndef LWPH
 #define LWPH
+
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <stdlib.h>
-#include <bits/mman.h>
 #include <string.h>
 #include <stdio.h>
 

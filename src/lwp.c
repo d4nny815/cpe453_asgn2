@@ -32,6 +32,7 @@ tid_t lwp_create(lwpfun function, void *argument) {
     thread_created->tid = ++thread_id_counter;
 
     // allocate stack for the thread
+    // ? why dont MAP_STACK and MAP_ANON not work?
     void *init_ptr = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, 
                         MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK,
                         -1, 0);
