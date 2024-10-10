@@ -1,36 +1,42 @@
 #include "../include/lwp.h"
-
-static void lwp_wrap(lwpfun fun, void* arg);
 #include "../include/schedulers.h"
 
+static void lwp_wrap(lwpfun fun, void* arg);
 
 static size_t thread_id_counter = 0;
 
 static scheduler round_robin = NULL;
 
 
-//funcion creates and returns the TID of the process it created
+// helper function
+static void print_context(context p_thread_info);
+
+//function creates and returns the TID of the process it created
 tid_t lwp_create(lwpfun function, void *argument) {
     // init scheudler if doesnt exist
     if (round_robin == NULL) {
         round_robin = (scheduler) malloc(sizeof(struct scheduler));
+        if (round_robin->init != 0) {
+            round_robin->init();
+        }
     }    
 
 
-    //first create the thread
-    thread thread_created = (thread) malloc(sizeof(struct threadinfo_st));
+    // create the thread
+    thread thread_created = (thread) malloc(sizeof(context));
     if(thread_created == NULL) {
         return NO_THREAD; 
     }
 
-    //must first create a thread ID and then assign it to the thread
+    // assign it to the thread
     thread_created->tid = ++thread_id_counter;
 
-    //mmap a portion of the stack for the thread
+    // allocate stack for the thread
     void *init_ptr = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, 
-                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
+                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK,
+                        -1, 0);
     if(init_ptr == MAP_FAILED){
-        perror("mmaping stack failed");
+        perror("[LWP_CREATE] mmaping stack failed");
         free(thread_created);
         return NO_THREAD;
     }
@@ -40,27 +46,32 @@ tid_t lwp_create(lwpfun function, void *argument) {
     thread_created->stack = (size_t) sp;
     thread_created->stacksize = STACK_SIZE;
 
-    // inject into the stack, return address, old base pointer*
+    // TODO: inject into the stack, return address, old base pointer*
     // place RA
     // place BP
 
-    //create an initial rfile
+    // TODO: create an initial rfile
     rfile* init_regs = (rfile*) calloc(1, sizeof(rfile));
 
-    //set the register pointers we need
+    // TODO: set the register pointers we need
     //rps = stack pointer, rbp = base pointer, rdi = function argument
     init_regs->rsp = init_ptr;
     init_regs->rbp = init_ptr;
     init_regs->rdi = 0; 
-    // dont forget about FPU too 
+    // TODO: dont forget about FPU too 
 
 
-    //put the wrapper address into the right register 
+    // TODO: put the wrapper address into the right register 
 
-    //put the function argument in the right register
+    // TODO: put the function argument in the right register
 
-    //once created, admit it to the scheduler
-    // admit(thread_created);
+    // admit new thread to the scheduler
+    round_robin->admit(thread_created);
+
+    print_context(*thread_created);
+    
+    // TODO: add to total thread list
+
     return thread_created->tid;
 }
 
@@ -74,5 +85,18 @@ static void lwp_wrap(lwpfun fun, void* arg) {
     int rval; 
     rval = fun(arg);
     lwp_exit(rval);
+    return;
+}
+
+
+static void print_context(context p_th_info) {
+    printf("Thread %lu {\n\tstack_addr = %p stack_size = 0x%X\n\t"
+            "rfile = %s\n\tlib_next %p, lib_prev %p\n\tsched_next"
+            " = %p, sched_prev = %p\n\texited = %p\n}\n", 
+            p_th_info.tid, p_th_info.stack, "rfile", 
+            p_th_info.lib_next, p_th_info.lib_prev, 
+            p_th_info.sched_next, p_th_info.sched_prev, 
+            p_th_info.exited);
+
     return;
 }

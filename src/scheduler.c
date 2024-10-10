@@ -42,6 +42,7 @@ void rr_admit(thread new_thread) {
     }
 
     schedule.count++;
+    printf("[RR_ADMIT] thread %lu admited", new_thread->tid);
 } 
 
 void rr_remove(thread victim){

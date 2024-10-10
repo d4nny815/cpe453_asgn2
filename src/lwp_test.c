@@ -1,8 +1,8 @@
 #include "../include/lwp.h"
 
-
 int main(void) {
-    lwp_exit(0); 
+    for (int i = 0; i < 5; i++)
+        lwp_create(NULL, 0);
 
     return 0;
 }

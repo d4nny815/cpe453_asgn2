@@ -3,3 +3,4 @@
 *.so
 build/
 *.swp
+lwp_test
