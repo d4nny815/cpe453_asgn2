@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "schedulers.h"
 
 #ifndef TRUE
 #define TRUE 1
