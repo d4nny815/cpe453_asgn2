@@ -1,6 +1,11 @@
 #ifndef LWPH
 #define LWPH
 #include <sys/types.h>
+#include <sys/mman.h>
+#include <stdlib.h>
+#include <bits/mman.h>
+#include <string.h>
+#include <stdio.h>
 
 #ifndef TRUE
 #define TRUE 1
@@ -9,6 +14,8 @@
 #define FALSE 0
 #endif
 
+//8MB of stack
+#define STACK_SIZE (1<<23)
 
 #if defined(__x86_64)
 #include "fp.h"
