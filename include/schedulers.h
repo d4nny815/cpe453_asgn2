@@ -1,12 +1,17 @@
 #ifndef SCHEDULERSH
 #define SCHEDULERSH
 
-#include <lwp.h>
-#include <cstddef.h> //to make the red under the NULL go away but now this is red so idk 
+#include "lwp.h"
+//#include <cstddef.h> 
 
 extern scheduler AlwaysZero;
 extern scheduler ChangeOnSIGTSTP;
 extern scheduler ChooseHighestColor;
 extern scheduler ChooseLowestColor;
+
+void rr_admit(thread new_thread);
+void rr_remove(thread victim);
+void next();
+void qlen();
 
 #endif

@@ -8,15 +8,15 @@ struct SchedulerInfo_t {
     int count;    // the count of how many total threads in scheduler currently
 } schedule = (struct SchedulerInfo_t) {NULL, NULL, 0};
 
-void admit(thread new_thread){
+void rr_admit(thread new_thread){
     //if this is the first thread in the list
     //add it and make it point to itself
-    //sched_one = next
-    //sched_two = prev
+    //next = next
+    //prev = prev
     //set the head and tail
     if (schedule.active_thread == NULL) {
-        new_thread->sched_one = new_thread;
-        new_thread->sched_two = new_thread;
+        new_thread->next = new_thread;
+        new_thread->prev = new_thread;
         schedule.active_thread = new_thread;
         schedule.tail = new_thread;
         schedule.count = 0;
@@ -26,16 +26,16 @@ void admit(thread new_thread){
         thread curtail = schedule.tail;
 
         //current tails next becomes the new thread
-        curtail->sched_one = new_thread;
+        curtail->next = new_thread;
 
         //new threads previous becomes the tail
-        new_thread->sched_two = curtail;
+        new_thread->prev = curtail;
 
         //the new threads next becomes the start (head)(circles woo)
-        new_thread->sched_one = schedule.active_thread;
+        new_thread->next = schedule.active_thread;
 
         //the head's previous becomes the new thread (circles cuz happy)
-        schedule.active_thread->sched_two = new_thread;
+        schedule.active_thread->prev = new_thread;
 
         schedule.tail = new_thread;
     }
@@ -43,7 +43,7 @@ void admit(thread new_thread){
     schedule.count++;
 } 
 
-void remove(thread victim){
+void rr_remove(thread victim){
     //if nothing in there, return NULL
     if(schedule.active_thread == NULL){
         return;
@@ -51,8 +51,8 @@ void remove(thread victim){
 
     //if one to remove is the head and thats the only one
     if (schedule.count == 1){
-        victim->sched_one = NULL;
-        victim->sched_two = NULL;
+        victim->next = NULL;
+        victim->prev = NULL;
 
         //update in the global
         schedule.active_thread = NULL;
@@ -63,11 +63,11 @@ void remove(thread victim){
 
     //if one to remove is the head and there are more
     if (victim == schedule.active_thread){
-        schedule.tail->sched_one = schedule.active_thread->sched_one;
-        schedule.active_thread->sched_one->sched_two = schedule.tail;
+        schedule.tail->next = schedule.active_thread->next;
+        schedule.active_thread->next->prev = schedule.tail;
         
         //update the global variable cha fel
-        schedule.active_thread = schedule.active_thread->sched_one;
+        schedule.active_thread = schedule.active_thread->next;
         
         schedule.count--;
         return;
@@ -75,18 +75,18 @@ void remove(thread victim){
 
     //if the one to remove is the tail 
     if (victim == schedule.tail){
-        schedule.tail->sched_two->sched_one = schedule.active_thread;
-        schedule.active_thread->sched_two = schedule.tail->sched_two;
+        schedule.tail->prev->next = schedule.active_thread;
+        schedule.active_thread->prev = schedule.tail->prev;
 
-        schedule.tail = schedule.tail->sched_two; 
+        schedule.tail = schedule.tail->prev; 
 
         schedule.count--;
         return;
     }
 
     //if its none of those
-    victim->sched_one->sched_two = victim->sched_two;
-    victim->sched_two->sched_one = victim->sched_one;
+    victim->next->prev = victim->prev;
+    victim->prev->next = victim->next;
     schedule.count--;
     return;
 }
@@ -95,7 +95,7 @@ thread next(){
     if (schedule.active_thread == NULL){
         return NULL;
     }
-    return schedule.active_thread->sched_one;
+    return schedule.active_thread->next;
 }
 
 int qlen(){
