@@ -100,5 +100,19 @@ How to Go About it:
 Stacks:
 - we are using mmap because that creates independent sections of memory
 - we can tell if where to create that and how much to give and a bunch of permissions
-- mmap returns a pointer to where that memory chunk starts? 
+- mmap returns a pointer to where that memory chunk starts
 - 
+
+Create:
+- create thread ID (counter)
+- allocate a stack for it (mmap will return start of chunk)
+*inject into the stack, return address, old base pointer*
+- create an innitial rfile
+*put the wrapper address into the respective register*
+- put the function argument into the respective register
+- admit it into the scheduler 
+
+Start: 
+- 
+
+Yield: 

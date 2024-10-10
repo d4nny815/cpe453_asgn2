@@ -1,1 +1,5 @@
 .vscode
+build/
+*.a
+*.so
+lwp_test
