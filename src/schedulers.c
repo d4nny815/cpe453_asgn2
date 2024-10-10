@@ -1,5 +1,7 @@
 #include "../include/schedulers.h"
 
+void print_active_threads();
+
 // TODO: danny fix this
 struct SchedulerInfo_t {
     thread active_thread;  // the first thread in the scheduler

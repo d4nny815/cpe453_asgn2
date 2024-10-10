@@ -4,14 +4,15 @@ static void lwp_wrap(lwpfun fun, void* arg);
 
 static size_t thread_id_counter = 0;
 
+static thread thread_list_head = NULL; 
 
 // helper function
-static void print_context(context p_thread_info);
+void print_thread(thread p_thread);
+void print_all_threads();
+void print_waitlist();
 
 //function creates and returns the TID of the process it created
 tid_t lwp_create(lwpfun function, void *argument) {
-    // ?init scheudler if doesnt exist?
-
     // create the thread
     thread thread_created = (thread) malloc(sizeof(context));
     if(thread_created == NULL) {
@@ -59,16 +60,21 @@ tid_t lwp_create(lwpfun function, void *argument) {
     // admit new thread to the scheduler
     round_robin->admit(thread_created);
 
-    print_context(*thread_created);
-    
     // TODO: add to total thread list
+    if (thread_list_head == NULL) {
+        thread_list_head = thread_created;
+        thread_list_head->lib_next = NULL;
+    } else {
+        thread_created->lib_next = thread_list_head;
+        thread_list_head = thread_created;
+    }
 
     return thread_created->tid;
 }
 
 
 void lwp_exit(int status) {
-    printf("hello world\n");
+    print_all_threads();
 }
 
 
@@ -80,14 +86,25 @@ static void lwp_wrap(lwpfun fun, void* arg) {
 }
 
 
-static void print_context(context p_th_info) {
+void print_thread(thread p_thread) {
     printf("Thread %lu {\n\tstack_addr = %p stack_size = 0x%X\n\t"
             "rfile = %s\n\tlib_next %p, lib_prev %p\n\tsched_next"
             " = %p, sched_prev = %p\n\texited = %p\n}\n", 
-            p_th_info.tid, p_th_info.stack, "rfile", 
-            p_th_info.lib_next, p_th_info.lib_prev, 
-            p_th_info.sched_next, p_th_info.sched_prev, 
-            p_th_info.exited);
+            p_thread->tid, p_thread->stack, p_thread->stacksize, 
+            "tmp", p_thread->lib_next, p_thread->lib_prev, 
+            p_thread->sched_next, p_thread->sched_prev, 
+            p_thread->exited);
+
+    return;
+}
+
+
+void print_all_threads() {
+    thread cur = thread_list_head;
+    do {
+        print_thread(cur);
+        cur = cur->lib_next;
+    } while (cur);
 
     return;
 }
