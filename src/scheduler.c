@@ -8,7 +8,7 @@ struct SchedulerInfo_t {
     int count;    // the count of how many total threads in scheduler currently
 } schedule = (struct SchedulerInfo_t) {NULL, NULL, 0};
 
-void admit(thread new_thread){
+void rr_admit(thread new_thread){
     //if this is the first thread in the list
     //add it and make it point to itself
     //sched_one = next
@@ -43,7 +43,7 @@ void admit(thread new_thread){
     schedule.count++;
 } 
 
-void remove(thread victim){
+void rr_remove(thread victim){
     //if nothing in there, return NULL
     if(schedule.active_thread == NULL){
         return;
