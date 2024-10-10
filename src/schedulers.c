@@ -1,4 +1,3 @@
-#include "../include/lwp.h"
 #include "../include/schedulers.h"
 
 // TODO: danny fix this
@@ -7,6 +6,9 @@ struct SchedulerInfo_t {
     thread tail;
     int count;    // the count of how many total threads in scheduler currently
 } schedule = (struct SchedulerInfo_t) {NULL, NULL, 0};
+
+struct scheduler rr = {NULL, NULL, rr_admit, rr_remove, next, qlen};
+scheduler round_robin = &rr;
 
 void rr_admit(thread new_thread) {
 
@@ -42,7 +44,7 @@ void rr_admit(thread new_thread) {
     }
 
     schedule.count++;
-    printf("[RR_ADMIT] thread %lu admited", new_thread->tid);
+    printf("[RR_ADMIT] thread %lu admited\n", new_thread->tid);
 } 
 
 void rr_remove(thread victim){
@@ -93,7 +95,7 @@ void rr_remove(thread victim){
     return;
 }
 
-thread rr_sched_next() {
+thread next() {
     if (schedule.active_thread == NULL){
         return NULL;
     }

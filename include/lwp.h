@@ -15,8 +15,7 @@
 #define FALSE 0
 #endif
 
-//8MB of stack
-#define STACK_SIZE (1<<23)
+#define STACK_SIZE (1<<23) // 8MB
 
 #if defined(__x86_64)
 #include "fp.h"

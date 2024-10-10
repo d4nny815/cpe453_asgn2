@@ -2,7 +2,9 @@
 #define SCHEDULERSH
 
 #include "lwp.h"
-//#include <cstddef.h> 
+
+typedef struct scheduler *scheduler;
+typedef struct threadinfo_st *thread;
 
 /*
 extern scheduler AlwaysZero;
@@ -11,9 +13,11 @@ extern scheduler ChooseHighestColor;
 extern scheduler ChooseLowestColor;
 */
 
+extern scheduler round_robin;
+
 void rr_admit(thread new_thread);
 void rr_remove(thread victim);
-void next();
+thread next();
 int qlen();
 
 #endif

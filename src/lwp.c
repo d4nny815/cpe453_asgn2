@@ -1,11 +1,8 @@
 #include "../include/lwp.h"
-#include "../include/schedulers.h"
 
 static void lwp_wrap(lwpfun fun, void* arg);
 
 static size_t thread_id_counter = 0;
-
-static scheduler round_robin = NULL;
 
 
 // helper function
@@ -13,14 +10,7 @@ static void print_context(context p_thread_info);
 
 //function creates and returns the TID of the process it created
 tid_t lwp_create(lwpfun function, void *argument) {
-    // init scheudler if doesnt exist
-    if (round_robin == NULL) {
-        round_robin = (scheduler) malloc(sizeof(struct scheduler));
-        if (round_robin->init != 0) {
-            round_robin->init();
-        }
-    }    
-
+    // ?init scheudler if doesnt exist?
 
     // create the thread
     thread thread_created = (thread) malloc(sizeof(context));
@@ -44,7 +34,7 @@ tid_t lwp_create(lwpfun function, void *argument) {
 
     //fill in the thread struct details
     intptr_t sp = (intptr_t) init_ptr + STACK_SIZE;    
-    thread_created->stack = (size_t) sp;
+    thread_created->stack = (unsigned long*) sp;
     thread_created->stacksize = STACK_SIZE;
 
     // TODO: inject into the stack, return address, old base pointer*
