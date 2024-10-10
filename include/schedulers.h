@@ -1,8 +1,8 @@
 #ifndef SCHEDULERSH
 #define SCHEDULERSH
 
-#include <lwp.h>
-#include <cstddef.h> 
+#include "lwp.h"
+//#include <cstddef.h> 
 
 extern scheduler AlwaysZero;
 extern scheduler ChangeOnSIGTSTP;
