@@ -112,7 +112,33 @@ Create:
 - put the function argument into the respective register
 - admit it into the scheduler 
 
+QUESTIONS TO ANSWER STILL:
+- what is the old base pointer? 
+
+
+PIVITOL THINGS WE HAVE LEARNED:
+- when the thread starts, mmap returns a pointer to the stack
+- it returns a pointer to where the stack ends (the top of the stack)
+- we want the stack to start at the bottom and grow downwards toward the top
+- so we add the size of the stack to the pointer to move it to the bottom 
+- there are 2 processes going, even if there is one thread the main is itself a thread so there are always 2
+- there is only one set of 16 registers, and each process takes turns using them 
+- the process has the address to the wrapper loaded into its return address just by convention
+- the wrapper is necessary because the function would return a value into rdx and exit cannot access that
+- we need the function to return and store that in a variable so that we can pass that to exit and it can exit
+- when swap r files is called, its job is to save context into the memory we mallocked
+- this means that the r file struct we created that we malloced for is somewhere in memory
+- swap r files takes what is in the rip, bp2, and sp2 and stores it in the memory where you mallocked
+- it keeps it there so that those registers are free to hold the data from the next thread 
+- the thread that is now running upon start pops the pointer to the wrapper off and puts it into the rip
+- the instruction pointer is now pointing to there, and that is what makes it run.
+
+
 Start: 
-- 
+- start is going to make context for the main 
+- the main is a thread in itself
+- it will add itself to the scheduler
+- it will switch contexts and make the second process load in the wrapper
+- and thats how it starts!!
 
 Yield: 
