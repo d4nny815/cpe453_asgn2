@@ -13,16 +13,19 @@ all: dirs liblwp lwp_test
 # Build library
 liblwp: liblwp.so liblwp.a
 
-liblwp.so: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o
+liblwp.so: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o $(BUILD_DIR)/magic64.o
 	$(CC) $(CFLAGS) -shared -o $@ $^ 
 
-liblwp.a: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o
+liblwp.a: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o $(BUILD_DIR)/magic64.o
 	ar rcs $@ $^ 
 
 $(BUILD_DIR)/lwp.o: $(SRC_DIR)/lwp.c $(INC_DIR)/lwp.h 
 	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@ 
 
 $(BUILD_DIR)/schedulers.o: $(SRC_DIR)/schedulers.c $(INC_DIR)/schedulers.h
+	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
+
+$(BUILD_DIR)/magic64.o: $(SRC_DIR)/magic64.S 
 	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
 
 dirs: 

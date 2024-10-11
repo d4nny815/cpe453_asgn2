@@ -137,8 +137,15 @@ PIVITOL THINGS WE HAVE LEARNED:
 Start: 
 - start is going to make context for the main 
 - the main is a thread in itself
+- it will call yeild
 - it will add itself to the scheduler
 - it will switch contexts and make the second process load in the wrapper
 - and thats how it starts!!
 
 Yield: 
+- should call next from the scheduler to see which thread is next
+- calls swap r files with the curernt thread and the next thread 
+
+
+Wait: 
+- takes in the 
