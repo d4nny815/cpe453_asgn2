@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -g -fPIC 
-#CFLAGS = -Wall -Wextra -g -fPIC 
+# CFLAGS = -Wall -Wextra -Werror -g -fPIC 
+CFLAGS = -Wall -Wextra -g -fPIC 
 
 SRC_DIR = src
 BUILD_DIR = build
@@ -13,10 +13,10 @@ all: dirs liblwp lwp_test
 # Build library
 liblwp: liblwp.so liblwp.a
 
-liblwp.so: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o
+liblwp.so: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o $(BUILD_DIR)/magic64.o
 	$(CC) $(CFLAGS) -shared -o $@ $^ 
 
-liblwp.a: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o
+liblwp.a: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o $(BUILD_DIR)/magic64.o
 	ar rcs $@ $^ 
 
 $(BUILD_DIR)/lwp.o: $(SRC_DIR)/lwp.c $(INC_DIR)/lwp.h 
@@ -25,10 +25,13 @@ $(BUILD_DIR)/lwp.o: $(SRC_DIR)/lwp.c $(INC_DIR)/lwp.h
 $(BUILD_DIR)/schedulers.o: $(SRC_DIR)/schedulers.c $(INC_DIR)/schedulers.h
 	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
 
+$(BUILD_DIR)/magic64.o: $(SRC_DIR)/magic64.S 
+	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
+
 dirs: 
 	@mkdir -p $(BUILD_DIR)
 
-# TEST PROGRAM
+# Test Program 
 lwp_test: $(BUILD_DIR)/lwp_test.o liblwp
 	$(CC) $(CFLAGS) -L. -o $@ $< -llwp
 
@@ -37,7 +40,6 @@ $(BUILD_DIR)/lwp_test.o: $(SRC_DIR)/lwp_test.c $(INC_DIR)/lwp.h
 
 gdb: lwp_test
 	gdb ./$<
-	lay next
 
 clean:
 	rm -rf $(BUILD_DIR) *.a *.so lwp_test

@@ -4,3 +4,4 @@
 build/
 *.swp
 lwp_test
+.nfs*
