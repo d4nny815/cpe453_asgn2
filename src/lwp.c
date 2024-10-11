@@ -34,24 +34,25 @@ tid_t lwp_create(lwpfun function, void *argument) {
     }
 
     //fill in the thread struct details
-    intptr_t sp = (intptr_t) init_ptr + STACK_SIZE;    
-    intptr_t bp = (intptr_t) init_ptr + STACK_SIZE - 8;    
-    thread_created->stack = (unsigned long*) sp;
+    intptr_t old_bp = (intptr_t) init_ptr;    
+    thread_created->stack = (unsigned long*) init_ptr; // ? this be ptr to useable stack
     thread_created->stacksize = STACK_SIZE;
 
     // inject into the stack, return address, old base pointer*
-    intptr_t* p_stack = (intptr_t*) init_ptr;
-    p_stack[0] = (intptr_t) lwp_wrap;
-    p_stack[1] = (intptr_t) bp;
+    unsigned long* p_stack = (unsigned long*) init_ptr;
+    p_stack[0] = (unsigned long) lwp_wrap; // RA
+    p_stack[1] = (unsigned long) old_bp;
 
     // create an initial rfile
     rfile* init_rfile = &thread_created->state;
 
     // set the register pointers we need
     //rps = stack pointer, rbp = base pointer, rdi = function argument
-    init_rfile->rsp = sp + 16;
-    init_rfile->rbp = bp;
-    init_rfile->rdi = 0; 
+    intptr_t sp = (intptr_t) init_ptr + STACK_SIZE - 2 * WORD_SIZE;
+    init_rfile->rsp = (intptr_t) init_ptr + STACK_SIZE - 
+                        2 * WORD_SIZE;
+    init_rfile->rdi = (unsigned long) function; 
+    init_rfile->rsi = (unsigned long) argument; 
     init_rfile->fxsave = FPU_INIT;
 
     // ? this need to be the args into lwp_wrap?

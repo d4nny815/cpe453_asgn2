@@ -73,7 +73,7 @@ typedef struct scheduler {
 } *scheduler;
 
 /* lwp functions */
-extern tid_t lwp_create(lwpfun,void *);
+extern tid_t lwp_create(lwpfun function,void* argument);
 extern void  lwp_exit(int status);
 extern tid_t lwp_gettid(void);
 extern void  lwp_yield(void);
@@ -93,5 +93,7 @@ extern thread tid2thread(tid_t tid);
 
 /* prototypes for asm functions */
 void swap_rfiles(rfile *old, rfile *new);
+
+#define WORD_SIZE (sizeof(void*))
 
 #endif
