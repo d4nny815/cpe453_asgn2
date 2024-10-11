@@ -4,6 +4,8 @@ static void lwp_wrap(lwpfun fun, void* arg);
 static thread remove_wait_list();
 static void add_2_wait_list(thread thread_to_add);
 static void insert_waitlist_head(thread thread_to_insert);
+static void add_to_big_list(thread thread_to_add);
+static void remove_from_big_list(thread thread_to_remove);
 
 static size_t thread_id_counter = 0;
 
@@ -67,13 +69,7 @@ tid_t lwp_create(lwpfun function, void *argument) {
     round_robin->admit(thread_created);
 
     // add to total thread list
-    if (threadlist_head == NULL) {
-        threadlist_head = thread_created;
-        threadlist_head->lib_tl_next = NULL;
-    } else {
-        thread_created->lib_tl_next = threadlist_head;
-        threadlist_head = thread_created;
-    }
+    add_to_big_list(thread_created);
 
     return thread_created->tid;
 }
@@ -97,6 +93,7 @@ void lwp_start(void){
 
     // main thread is the current thread
     cur_thread = thread_main;
+    add_to_big_list(thread_main);
 
     // admit new thread to the scheduler
     round_robin->admit(thread_main);
@@ -160,7 +157,10 @@ tid_t lwp_wait(int *status) {
         terminated_thread = remove_wait_list();
         if (terminated_thread->tid != main_id){
             // deallocate it all
+            // put the status of the one terminated into the status pointer 
+            *status = terminated_thread->status;
             tid_t id_to_return = terminated_thread->tid;
+            remove_from_big_list(terminated_thread);
             munmap((void*)((intptr_t)terminated_thread - STACK_SIZE), 
                     STACK_SIZE);
             free(terminated_thread);
@@ -171,8 +171,8 @@ tid_t lwp_wait(int *status) {
 
     // if there is more than one in the scheduler
     if (round_robin->qlen() > 1) {
-        round_robin->remove(terminated_thread);
-        insert_waitlist_head(terminated_thread);
+        round_robin->remove(cur_thread);
+        insert_waitlist_head(cur_thread);
         lwp_yield();       
     }
     return NO_THREAD;
@@ -247,6 +247,52 @@ static thread remove_wait_list() {
 
     return thread_removed;
 }
+
+static void add_to_big_list(thread thread_to_add){
+     if (threadlist_head == NULL) {
+        threadlist_head = thread_to_add;
+        thread_to_add->lib_tl_next = NULL;
+    } else {
+        thread_to_add->lib_tl_next = threadlist_head;
+        threadlist_head = thread_to_add;
+    }
+    return;
+}
+
+static void remove_from_big_list(thread thread_to_remove){
+    if (threadlist_head == NULL){
+        return;
+    }
+
+    // just one thing and need to remove it
+    if (threadlist_head->lib_tl_next == NULL){
+
+        // check if its the one to remove then remove it
+        if (thread_to_remove->tid == threadlist_head->tid){
+            threadlist_head = NULL;
+        }
+        return;
+    }
+
+    // case where theres more things and removing head
+    if (threadlist_head->tid == thread_to_remove->tid){
+        threadlist_head = threadlist_head->lib_tl_next;
+    }
+   
+    thread cur_thread = threadlist_head->lib_tl_next;
+    thread prev_thread = threadlist_head;
+
+    while(cur_thread){
+        if (cur_thread->tid == thread_to_remove->tid){
+            prev_thread->lib_tl_next = cur_thread->lib_tl_next;
+            return;
+        }
+        cur_thread = cur_thread->lib_tl_next;
+        prev_thread = prev_thread->lib_tl_next;
+    }
+    return;
+}
+
 
 
 static void lwp_wrap(lwpfun fun, void* arg) {
