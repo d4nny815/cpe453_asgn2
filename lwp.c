@@ -1,4 +1,4 @@
-#include "../include/lwp.h"
+#include "lwp.h"
 
 static void lwp_wrap(lwpfun fun, void* arg);
 static thread remove_wait_list();

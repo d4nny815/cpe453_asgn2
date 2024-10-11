@@ -19,14 +19,14 @@ liblwp.so: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o $(BUILD_DIR)/magic64.o
 liblwp.a: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o $(BUILD_DIR)/magic64.o
 	ar rcs $@ $^ 
 
-$(BUILD_DIR)/lwp.o: $(SRC_DIR)/lwp.c $(INC_DIR)/lwp.h 
+$(BUILD_DIR)/lwp.o: lwp.c lwp.h 
 	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@ 
 
-$(BUILD_DIR)/schedulers.o: $(SRC_DIR)/schedulers.c $(INC_DIR)/schedulers.h
-	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
+$(BUILD_DIR)/schedulers.o: schedulers.c schedulers.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/magic64.o: $(SRC_DIR)/magic64.S 
-	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
+$(BUILD_DIR)/magic64.o: magic64.S 
+	$(CC) $(CFLAGS) -c $< -o $@
 
 dirs: 
 	@mkdir -p $(BUILD_DIR)
@@ -35,8 +35,8 @@ dirs:
 lwp_test: $(BUILD_DIR)/lwp_test.o liblwp
 	$(CC) $(CFLAGS) -L. -o $@ $< -llwp
 
-$(BUILD_DIR)/lwp_test.o: $(SRC_DIR)/lwp_test.c $(INC_DIR)/lwp.h
-	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@ 
+$(BUILD_DIR)/lwp_test.o: lwp_test.c lwp.h
+	$(CC) $(CFLAGS) -c $< -o $@ 
 
 gdb: lwp_test
 	gdb ./$<

@@ -1,4 +1,4 @@
-#include "../include/lwp.h"
+#include "lwp.h"
 
 int main(void) {
     int i;

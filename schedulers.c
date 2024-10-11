@@ -1,4 +1,4 @@
-#include "../include/schedulers.h"
+#include "schedulers.h"
 
 void print_active_threads();
 
