@@ -150,9 +150,9 @@ void lwp_yield(void){
     swap_rfiles(&old_thread->state, &cur_thread->state);
 }
 
-tid_t lwp_exit(int exitval) {
+void lwp_exit(int exitval) {
     if(cur_thread == NULL){
-        return NO_THREAD;
+        return;
     }
 
     // mutate status
@@ -166,7 +166,7 @@ tid_t lwp_exit(int exitval) {
 
     lwp_yield();
 
-    return cur_thread->tid;
+    return;
 }
 
 
@@ -190,6 +190,15 @@ thread tid2thread(tid_t tid) {
     }
     return NULL;
 }
+
+// tid_t lwp_wait(int *status){
+
+// }
+
+
+
+
+
 
 
 void print_thread(thread p_thread) {
