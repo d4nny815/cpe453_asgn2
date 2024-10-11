@@ -49,6 +49,12 @@ tid_t lwp_create(lwpfun function, void *argument) {
 
     // set the register pointers we need
     //rps = stack pointer, rbp = base pointer, rdi = function argument
+    init_regs->rsp = init_ptr;
+    init_regs->rbp = init_ptr;
+    init_regs->rdi = 0; 
+    // dont forget about FPU too 
+
+    //put the wrapper address into the right register 
     init_rfile->rsp = sp + 16;
     init_rfile->rbp = bp;
     init_rfile->rdi = 0; 
