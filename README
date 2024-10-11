@@ -153,5 +153,29 @@ Exit:
 - take the current threat and remove it from the scheduler
 
 Wait: 
--  
+- check if there is only one process in the scheduler
+- if there is only one that means the program is done
+- if there is more than one process in the main, and there is no scheduler 
+- check if the status of that process is TERM 
+- if the term is not then 
+- check if the process is main
+	- if so, we don't want to dealloate that 
+- deallocate the stacks stack frame
+- if there are no terminated threads
+	- need to block until it terminates 
+	- remove it from the scheduler 
+		- if there is only one thing in the scheduler (qlen = 1) 
+		- return NO_TERM
+
+ - only one list for both the exited and the wait 
+ - check the status of the thread to know which one is waiting and one is exited 
+ - once it is exited, put it 
+ 
+
+
+- first check if terminated threads exist (check if the wait list has something)
+- if they dont, then do something idk
+- if there are terminated ones, return the last one in the list (FIFO)
+- 
+- 
 

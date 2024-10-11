@@ -31,7 +31,7 @@ $(BUILD_DIR)/magic64.o: $(SRC_DIR)/magic64.S
 dirs: 
 	@mkdir -p $(BUILD_DIR)
 
-# TEST PROGRAM
+# Test Program 
 lwp_test: $(BUILD_DIR)/lwp_test.o liblwp
 	$(CC) $(CFLAGS) -L. -o $@ $< -llwp
 
@@ -40,7 +40,6 @@ $(BUILD_DIR)/lwp_test.o: $(SRC_DIR)/lwp_test.c $(INC_DIR)/lwp.h
 
 gdb: lwp_test
 	gdb ./$<
-	lay next
 
 clean:
 	rm -rf $(BUILD_DIR) *.a *.so lwp_test

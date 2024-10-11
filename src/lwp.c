@@ -3,6 +3,7 @@
 static void lwp_wrap(lwpfun fun, void* arg);
 static thread remove_wait_list();
 static void add_2_wait_list(thread thread_to_add);
+static void insert_waitlist_head(thread thread_to_insert);
 
 static size_t thread_id_counter = 0;
 
@@ -10,6 +11,7 @@ static thread threadlist_head = NULL;
 static thread waitlist_head = NULL;
 static thread waitlist_tail = NULL;
 static thread cur_thread = NULL;
+static tid_t main_id = 0;
 
 // helper function
 void print_thread(thread p_thread);
@@ -39,7 +41,8 @@ tid_t lwp_create(lwpfun function, void *argument) {
     // fill in the thread struct details
     intptr_t old_bp = (intptr_t) init_ptr;    
     void* p_fr_bp = (void*)((intptr_t) init_ptr + STACK_SIZE);
-    thread_created->stack = (unsigned long*) p_fr_bp; // ? this be ptr to useable stack
+    // ? this be ptr to useable stack
+    thread_created->stack = (unsigned long*) p_fr_bp; 
     thread_created->stacksize = STACK_SIZE;
     thread_created->stack = LWP_LIVE;
 
@@ -55,6 +58,7 @@ tid_t lwp_create(lwpfun function, void *argument) {
     // set the register pointers we need
     intptr_t sp = (intptr_t) init_ptr + STACK_SIZE - 2 * WORD_SIZE;
     init_rfile->rsp = (unsigned long) sp;
+    init_rfile->rbp = (unsigned long) sp;
     init_rfile->rdi = (unsigned long) function; 
     init_rfile->rsi = (unsigned long) argument; 
     init_rfile->fxsave = FPU_INIT;
@@ -75,44 +79,6 @@ tid_t lwp_create(lwpfun function, void *argument) {
 }
 
 
-static void add_2_wait_list(thread thread_to_add) {
-    if (waitlist_head == NULL) {
-        waitlist_head = thread_to_add;
-        waitlist_tail = thread_to_add;
-        thread_to_add->lib_wl_next = NULL;
-    } else {
-        waitlist_tail->lib_wl_next = thread_to_add;
-        thread_to_add->lib_wl_next = NULL;
-        waitlist_tail = thread_to_add;
-    }
-    return;
-}
-
-
-static thread remove_wait_list() {
-    if (waitlist_head == NULL){
-        return NULL;
-    }
-
-    if (waitlist_head->lib_wl_next == NULL){
-        waitlist_tail = NULL;
-    }
-
-    thread thread_removed = waitlist_head;
-    waitlist_head = waitlist_head->lib_wl_next;
-
-    return thread_removed;
-}
-
-
-static void lwp_wrap(lwpfun fun, void* arg) {
-    int rval; 
-    rval = fun(arg);
-    //lwp_exit(rval);
-    return;
-}
-
-
 void lwp_start(void){
     // create a thread to be the main process 
     thread thread_main = (thread) malloc(sizeof(context));
@@ -123,7 +89,9 @@ void lwp_start(void){
 
     // assign it to the thread
     thread_main->tid = ++thread_id_counter;
-    thread_main->stack = NULL; // ? do I have to put the actual stack size that main has here? or hecksnaw
+    main_id = thread_main->tid;
+    // ? do I have to put the actual stack size that main has here? or hecksnaw
+    thread_main->stack = NULL; 
     thread_main->stacksize = 0;
     thread_main->status = LWP_LIVE;
 
@@ -150,12 +118,26 @@ void lwp_yield(void){
     swap_rfiles(&old_thread->state, &cur_thread->state);
 }
 
+
 void lwp_exit(int exitval) {
-    if(cur_thread == NULL){
+    // pop off the head 
+    // check if the term status is not term (it is waiting)
+    //      put back in scheduler 
+    // else 
+    //      insert it into the waitlist before the head
+
+    if (cur_thread == NULL) {
         return;
     }
 
-    // mutate status
+    thread wl_thread = remove_wait_list();
+    if (!LWPTERMINATED(wl_thread->status)) {
+        round_robin->admit(wl_thread);
+    } else {
+        insert_waitlist_head(wl_thread);
+    }
+
+    // change status
     cur_thread->status = MKTERMSTAT(LWP_TERM, exitval);
 
     // add to the wait list 
@@ -170,9 +152,48 @@ void lwp_exit(int exitval) {
 }
 
 
-tid_t lwp_gettid(void) {
+// ? what is status for?
+tid_t lwp_wait(int *status) {
+    thread terminated_thread;
+    if (waitlist_head) { 
+        // take the oldest terminated therad out from the waitlist 
+        terminated_thread = remove_wait_list();
+        if (terminated_thread->tid != main_id){
+            // deallocate it all
+            tid_t id_to_return = terminated_thread->tid;
+            munmap((void*)((intptr_t)terminated_thread - STACK_SIZE), 
+                    STACK_SIZE);
+            free(terminated_thread);
+            return id_to_return;
+        }
+        return main_id;
+    }
 
-    //return NO_THREAD if there is no thread
+    // if there is more than one in the scheduler
+    if (round_robin->qlen() > 1) {
+        round_robin->remove(terminated_thread);
+        insert_waitlist_head(terminated_thread);
+        lwp_yield();       
+    }
+    return NO_THREAD;
+
+    //  if anythings in the waitlist 
+    //      pop waitlist
+    //      if the thread is not the main one
+    //         deallocate it.
+    //      else
+    //         return main TID
+    //  else 
+    //      if more than one in the scheduler
+    //         remove from scheduler 
+    //         push to waitlist
+    //      else (there is nothing else)
+    //         return NO_THREAD
+
+}
+
+
+tid_t lwp_gettid (void) {
     if(cur_thread == NULL){
         return NO_THREAD;
     }
@@ -180,7 +201,7 @@ tid_t lwp_gettid(void) {
 }
 
 
-thread tid2thread(tid_t tid) {
+thread tid2thread (tid_t tid) {
     thread cur = threadlist_head;
     while (cur) {
         if (cur->tid == tid) {
@@ -191,14 +212,49 @@ thread tid2thread(tid_t tid) {
     return NULL;
 }
 
-// tid_t lwp_wait(int *status){
 
-// }
+static void add_2_wait_list (thread thread_to_add) {
+    if (waitlist_head == NULL) {
+        waitlist_head = thread_to_add;
+        waitlist_tail = thread_to_add;
+        thread_to_add->lib_wl_next = NULL;
+    } else {
+        waitlist_tail->lib_wl_next = thread_to_add;
+        thread_to_add->lib_wl_next = NULL;
+        waitlist_tail = thread_to_add;
+    }
+    return;
+}
+
+static void insert_waitlist_head (thread thread_to_insert){
+    thread old_head = waitlist_head;
+    waitlist_head = thread_to_insert;
+    waitlist_head->lib_wl_next = old_head;
+}
 
 
+static thread remove_wait_list() {
+    if (waitlist_head == NULL){
+        return NULL;
+    }
+
+    if (waitlist_head->lib_wl_next == NULL){
+        waitlist_tail = NULL;
+    }
+
+    thread thread_removed = waitlist_head;
+    waitlist_head = waitlist_head->lib_wl_next;
+
+    return thread_removed;
+}
 
 
-
+static void lwp_wrap(lwpfun fun, void* arg) {
+    int rval; 
+    rval = fun(arg);
+    lwp_exit(rval);
+    return;
+}
 
 
 void print_thread(thread p_thread) {
