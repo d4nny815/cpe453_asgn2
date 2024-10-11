@@ -147,5 +147,7 @@ Yield:
 - calls swap r files with the curernt thread and the next thread 
 
 
-Wait: 
-- takes in the 
+Exit: 
+- takes in the threads status
+- take the current thread and add it to the wait list 
+- take the current threat and remove it from the scheduler

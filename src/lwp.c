@@ -1,11 +1,14 @@
 #include "../include/lwp.h"
 
 static void lwp_wrap(lwpfun fun, void* arg);
+static thread remove_wait_list();
+static void add_2_wait_list(thread thread_to_add);
 
 static size_t thread_id_counter = 0;
 
 static thread threadlist_head = NULL; 
 static thread waitlist_head = NULL;
+static thread waitlist_tail = NULL;
 static thread cur_thread = NULL;
 
 // helper function
@@ -26,8 +29,7 @@ tid_t lwp_create(lwpfun function, void *argument) {
 
     // allocate stack for the thread
     void *init_ptr = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, 
-                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK,
-                        -1, 0);
+                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
     if (init_ptr == MAP_FAILED){
         perror("mmaping stack failed");
         free(thread_created);
@@ -51,8 +53,7 @@ tid_t lwp_create(lwpfun function, void *argument) {
 
     // set the register pointers we need
     intptr_t sp = (intptr_t) init_ptr + STACK_SIZE - 2 * WORD_SIZE;
-    init_rfile->rsp = (intptr_t) init_ptr + STACK_SIZE - 
-                        2 * WORD_SIZE;
+    init_rfile->rsp = (unsigned long) sp;
     init_rfile->rdi = (unsigned long) function; 
     init_rfile->rsi = (unsigned long) argument; 
     init_rfile->fxsave = FPU_INIT;
@@ -73,17 +74,43 @@ tid_t lwp_create(lwpfun function, void *argument) {
 }
 
 
-void lwp_exit(int status) {
-    print_all_threads();
+static void add_2_wait_list(thread thread_to_add) {
+    if (waitlist_head == NULL) {
+        waitlist_head = thread_to_add;
+        waitlist_tail = thread_to_add;
+        thread_to_add->lib_wl_next = NULL;
+    } else {
+        waitlist_tail->lib_wl_next = thread_to_add;
+        thread_to_add->lib_wl_next = NULL;
+        waitlist_tail = thread_to_add;
+    }
+    return;
+}
+
+
+static thread remove_wait_list() {
+    if (waitlist_head == NULL){
+        return NULL;
+    }
+
+    if (waitlist_head->lib_wl_next == NULL){
+        waitlist_tail = NULL;
+    }
+
+    thread thread_removed = waitlist_head;
+    waitlist_head = waitlist_head->lib_wl_next;
+
+    return thread_removed;
 }
 
 
 static void lwp_wrap(lwpfun fun, void* arg) {
     int rval; 
     rval = fun(arg);
-    lwp_exit(rval);
+    //lwp_exit(rval);
     return;
 }
+
 
 void lwp_start(void){
     // create a thread to be the main process 
@@ -125,13 +152,25 @@ void lwp_yield(void){
 
 // }
 
+tid_t get_tid(){
+    return cur_thread->tid;
+}
 
 
-
+thread tid2thread(tid_t tid) {
+    thread cur = threadlist_head;
+    while (cur) {
+        if (cur->tid == tid) {
+            return cur;
+        }
+        cur = cur->lib_tl_next;
+    }
+    return NULL;
+}
 
 
 void print_thread(thread p_thread) {
-    printf("Thread %lu {\n\tstack_addr = %p stack_size = 0x%X\n\t"
+    printf("Thread %lu {\n\tstack_addr = %p stack_size = 0x%zu\n\t"
             "rfile = %s\n\tlib_tl_next %p, lib_prev %p\n\tsched_next"
             " = %p, sched_prev = %p\n\texited = %p\n}\n", 
             p_thread->tid, p_thread->stack, p_thread->stacksize, 
@@ -141,10 +180,6 @@ void print_thread(thread p_thread) {
 
     return;
 }
-
-
-
-
 
 
 void print_all_threads() {
