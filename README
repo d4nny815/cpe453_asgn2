@@ -151,3 +151,7 @@ Exit:
 - takes in the threads status
 - take the current thread and add it to the wait list 
 - take the current threat and remove it from the scheduler
+
+Wait: 
+-  
+

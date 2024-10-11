@@ -41,6 +41,7 @@ tid_t lwp_create(lwpfun function, void *argument) {
     void* p_fr_bp = (void*)((intptr_t) init_ptr + STACK_SIZE);
     thread_created->stack = (unsigned long*) p_fr_bp; // ? this be ptr to useable stack
     thread_created->stacksize = STACK_SIZE;
+    thread_created->stack = LWP_LIVE;
 
     // inject into the stack, return address, old base pointer*
     unsigned long* p_stack = (unsigned long*) p_fr_bp;;
@@ -124,6 +125,7 @@ void lwp_start(void){
     thread_main->tid = ++thread_id_counter;
     thread_main->stack = NULL; // ? do I have to put the actual stack size that main has here? or hecksnaw
     thread_main->stacksize = 0;
+    thread_main->status = LWP_LIVE;
 
     // main thread is the current thread
     cur_thread = thread_main;
@@ -131,7 +133,7 @@ void lwp_start(void){
     // admit new thread to the scheduler
     round_robin->admit(thread_main);
 
-    //  call yeild
+    //  call yield
     lwp_yield();
 }
 
@@ -148,11 +150,32 @@ void lwp_yield(void){
     swap_rfiles(&old_thread->state, &cur_thread->state);
 }
 
-// tid_t lwp_wait(int *status){
+tid_t lwp_exit(int exitval) {
+    if(cur_thread == NULL){
+        return NO_THREAD;
+    }
 
-// }
+    // mutate status
+    cur_thread->status = MKTERMSTAT(LWP_TERM, exitval);
 
-tid_t get_tid(){
+    // add to the wait list 
+    add_2_wait_list(cur_thread);
+
+    // remove from the scheduler
+    round_robin->remove(cur_thread);
+
+    lwp_yield();
+
+    return cur_thread->tid;
+}
+
+
+tid_t lwp_gettid(void) {
+
+    //return NO_THREAD if there is no thread
+    if(cur_thread == NULL){
+        return NO_THREAD;
+    }
     return cur_thread->tid;
 }
 
@@ -191,3 +214,4 @@ void print_all_threads() {
 
     return;
 }
+
