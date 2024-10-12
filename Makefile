@@ -8,7 +8,8 @@ INC_DIR = include
 
 .PHONY: all liblwp dirs clean gdb
 
-all: dirs liblwp lwp_test
+all: dirs liblwp numbers 
+#all: dirs liblwp lwp_test
 
 # Build library
 liblwp: liblwp.so liblwp.a
@@ -38,8 +39,14 @@ lwp_test: $(BUILD_DIR)/lwp_test.o liblwp
 $(BUILD_DIR)/lwp_test.o: lwp_test.c lwp.h
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
-gdb: lwp_test
-	gdb ./$<
+# Demo Program
+numbers: $(BUILD_DIR)/numbersmain.o liblwp
+	$(CC) $(CFLAGS) -L. -o $@ $< -llwp
+
+$(BUILD_DIR)/numbersmain.o: demos/numbersmain.c lwp.h
+	$(CC) $(CFLAGS) -c $< -o $@ 
+
+
 
 clean:
-	rm -rf $(BUILD_DIR) *.a *.so lwp_test
+	rm -rf $(BUILD_DIR) *.a *.so lwp_test numbers
