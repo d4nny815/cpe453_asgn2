@@ -1,14 +1,7 @@
 #include "lwp.h"
 
-static void lwp_wrap(lwpfun fun, void* arg);
-static thread remove_wait_list();
-static void add_2_wait_list(thread thread_to_add);
-static void insert_waitlist_head(thread thread_to_insert);
-static void add_to_big_list(thread thread_to_add);
-static void remove_from_big_list(thread thread_to_remove);
-
+// ? should we put these in a struct
 static size_t thread_id_counter = 0;
-
 static thread threadlist_head = NULL; 
 static thread waitlist_head = NULL;
 static thread waitlist_tail = NULL;
@@ -19,6 +12,12 @@ static tid_t main_id = 0;
 void print_thread(thread p_thread);
 void print_all_threads();
 void print_waitlist();
+static void lwp_wrap(lwpfun fun, void* arg);
+static thread remove_waitlist();
+static void add_2_waitlist(thread thread_to_add);
+static void insert_waitlist_head(thread thread_to_insert);
+static void add_2_biglist(thread thread_to_add);
+static void remove_from_big_list(thread thread_to_remove);
 
 // function creates and returns the TID of the process it created
 tid_t lwp_create(lwpfun function, void *argument) {
@@ -65,13 +64,13 @@ tid_t lwp_create(lwpfun function, void *argument) {
     init_rfile->rsi = (unsigned long) argument; 
     init_rfile->fxsave = FPU_INIT;
 
-    // admit new thread to the scheduler
-    round_robin->admit(thread_created);
+    // admit new thread to the cur_schedulerr
+    cur_scheduler->admit(thread_created);
 
     // add to total thread list
-    add_to_big_list(thread_created);
+    add_2_biglist(thread_created);
 
-    //print_scheduler();
+    //print_cur_schedulerr();
     return thread_created->tid;
 }
 
@@ -94,10 +93,10 @@ void lwp_start(void) {
 
     // main thread is the current thread
     cur_thread = thread_main;
-    add_to_big_list(thread_main);
+    add_2_biglist(thread_main);
 
-    // admit new thread to the scheduler
-    round_robin->admit(thread_main);
+    // admit new thread to the cur_schedulerr
+    cur_scheduler->admit(thread_main);
 
     //  call yield
     lwp_yield();
@@ -105,14 +104,14 @@ void lwp_start(void) {
 
 
 void lwp_yield(void) {
-    // find what the next thread in the scheduler is
-    thread next_thread = round_robin->next();
+    // find what the next thread in the cur_schedulerr is
+    thread next_thread = cur_scheduler->next();
 
     // take the current thread and make copy so you can update it to next curr
     thread old_thread = cur_thread;    
-    // move the old process to back of scheduler
-    round_robin->remove(cur_thread);
-    round_robin->admit(cur_thread);
+    // move the old process to back of cur_schedulerr
+    cur_scheduler->remove(cur_thread);
+    cur_scheduler->admit(cur_thread);
 
 
     cur_thread = next_thread;
@@ -125,7 +124,7 @@ void lwp_yield(void) {
 void lwp_exit(int exitval) {
     // pop off the head 
     // check if the term status is not term (it is waiting)
-    //      put back in scheduler 
+    //      put back in cur_schedulerr 
     // else 
     //      insert it into the waitlist before the head
 
@@ -133,10 +132,10 @@ void lwp_exit(int exitval) {
         return;
     }
 
-    thread wl_thread = remove_wait_list();
+    thread wl_thread = remove_waitlist();
     if (wl_thread != NULL) {
         if (!LWPTERMINATED(wl_thread->status)) {
-            round_robin->admit(wl_thread);
+            cur_scheduler->admit(wl_thread);
         } else {
             insert_waitlist_head(wl_thread);
         }
@@ -146,12 +145,12 @@ void lwp_exit(int exitval) {
     cur_thread->status = MKTERMSTAT(LWP_TERM, exitval);
 
     // add to the wait list 
-    add_2_wait_list(cur_thread);
+    add_2_waitlist(cur_thread);
 
-    // remove from the scheduler
-    round_robin->remove(cur_thread);
+    // remove from the cur_schedulerr
+    cur_scheduler->remove(cur_thread);
 
-    if (round_robin->qlen() > 1) {
+    if (cur_scheduler->qlen() > 1) {
         lwp_yield();
     }
 
@@ -164,7 +163,7 @@ tid_t lwp_wait(int *status) {
     thread terminated_thread;
     if (waitlist_head) { 
         // take the oldest terminated therad out from the waitlist 
-        terminated_thread = remove_wait_list();
+        terminated_thread = remove_waitlist();
         if (terminated_thread->tid != main_id){
             // deallocate it all
             // put the status of the one terminated into the status pointer 
@@ -179,9 +178,9 @@ tid_t lwp_wait(int *status) {
         return main_id;
     }
 
-    // if there is more than one in the scheduler
-    if (round_robin->qlen() > 1) {
-        round_robin->remove(cur_thread);
+    // if there is more than one in the cur_schedulerr
+    if (cur_scheduler->qlen() > 1) {
+        cur_scheduler->remove(cur_thread);
         insert_waitlist_head(cur_thread);
         lwp_yield();       
     }
@@ -194,8 +193,8 @@ tid_t lwp_wait(int *status) {
     //      else
     //         return main TID
     //  else 
-    //      if more than one in the scheduler
-    //         remove from scheduler 
+    //      if more than one in the cur_schedulerr
+    //         remove from cur_schedulerr 
     //         push to waitlist
     //      else (there is nothing else)
     //         return NO_THREAD
@@ -223,7 +222,7 @@ thread tid2thread (tid_t tid) {
 }
 
 
-static void add_2_wait_list (thread thread_to_add) {
+static void add_2_waitlist (thread thread_to_add) {
     if (waitlist_head == NULL) {
         waitlist_head = thread_to_add;
         waitlist_tail = thread_to_add;
@@ -244,7 +243,7 @@ static void insert_waitlist_head (thread thread_to_insert){
 }
 
 
-static thread remove_wait_list() {
+static thread remove_waitlist() {
     if (waitlist_head == NULL){
         return NULL;
     }
@@ -259,7 +258,7 @@ static thread remove_wait_list() {
     return thread_removed;
 }
 
-static void add_to_big_list(thread thread_to_add){
+static void add_2_biglist(thread thread_to_add){
      if (threadlist_head == NULL) {
         threadlist_head = thread_to_add;
         thread_to_add->lib_tl_next = NULL;
