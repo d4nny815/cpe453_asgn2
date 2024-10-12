@@ -71,11 +71,12 @@ tid_t lwp_create(lwpfun function, void *argument) {
     // add to total thread list
     add_to_big_list(thread_created);
 
+    //print_scheduler();
     return thread_created->tid;
 }
 
 
-void lwp_start(void){
+void lwp_start(void) {
     // create a thread to be the main process 
     thread thread_main = (thread) malloc(sizeof(context));
 
@@ -103,12 +104,17 @@ void lwp_start(void){
 }
 
 
-void lwp_yield(void){
+void lwp_yield(void) {
     // find what the next thread in the scheduler is
     thread next_thread = round_robin->next();
 
     // take the current thread and make copy so you can update it to next curr
     thread old_thread = cur_thread;    
+    // move the old process to back of scheduler
+    round_robin->remove(cur_thread);
+    round_robin->admit(cur_thread);
+
+
     cur_thread = next_thread;
 
     // swap that hoeeeee
@@ -128,10 +134,12 @@ void lwp_exit(int exitval) {
     }
 
     thread wl_thread = remove_wait_list();
-    if (!LWPTERMINATED(wl_thread->status)) {
-        round_robin->admit(wl_thread);
-    } else {
-        insert_waitlist_head(wl_thread);
+    if (wl_thread != NULL) {
+        if (!LWPTERMINATED(wl_thread->status)) {
+            round_robin->admit(wl_thread);
+        } else {
+            insert_waitlist_head(wl_thread);
+        }
     }
 
     // change status
@@ -143,7 +151,9 @@ void lwp_exit(int exitval) {
     // remove from the scheduler
     round_robin->remove(cur_thread);
 
-    lwp_yield();
+    if (round_robin->qlen() > 1) {
+        lwp_yield();
+    }
 
     return;
 }
@@ -230,6 +240,7 @@ static void insert_waitlist_head (thread thread_to_insert){
     thread old_head = waitlist_head;
     waitlist_head = thread_to_insert;
     waitlist_head->lib_wl_next = old_head;
+    waitlist_tail = thread_to_insert; // ? will this always be the case?
 }
 
 

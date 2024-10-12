@@ -2,9 +2,7 @@ CC = gcc
 # CFLAGS = -Wall -Wextra -Werror -g -fPIC 
 CFLAGS = -Wall -Wextra -g -fPIC 
 
-SRC_DIR = src
 BUILD_DIR = build
-INC_DIR = include
 
 .PHONY: all liblwp dirs clean gdb
 
@@ -21,7 +19,7 @@ liblwp.a: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o $(BUILD_DIR)/magic64.o
 	ar rcs $@ $^ 
 
 $(BUILD_DIR)/lwp.o: lwp.c lwp.h 
-	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@ 
+	$(CC) $(CFLAGS) -c $< -o $@ 
 
 $(BUILD_DIR)/schedulers.o: schedulers.c schedulers.h
 	$(CC) $(CFLAGS) -c $< -o $@

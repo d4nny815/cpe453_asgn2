@@ -11,6 +11,9 @@ struct SchedulerInfo_t {
 struct scheduler rr = {NULL, NULL, rr_admit, rr_remove, next, qlen};
 scheduler round_robin = &rr;
 
+void print_scheduler();
+void print_thread(thread th);
+
 void rr_admit(thread new_thread) {
 
     //if this is the first thread in the list
@@ -45,7 +48,7 @@ void rr_admit(thread new_thread) {
     }
 
     schedule.count++;
-    printf("[RR_ADMIT] thread %lu admited\n", new_thread->tid);
+    //printf("[RR_ADMIT] thread %lu admited\n", new_thread->tid);
 } 
 
 void rr_remove(thread victim){
@@ -93,8 +96,11 @@ void rr_remove(thread victim){
     victim->sched_next->sched_prev = victim->sched_prev;
     victim->sched_prev->sched_next = victim->sched_next;
     schedule.count--;
+
+    //printf("[RR_REMOVE] thread %lu removed\n", victim->tid);
     return;
 }
+
 
 thread next() {
     if (schedule.active_thread == NULL){
@@ -103,6 +109,28 @@ thread next() {
     return schedule.active_thread->sched_next;
 }
 
+
 int qlen() {
     return (int)schedule.count;
 }
+
+
+void print_scheduler() {
+    thread cur = schedule.active_thread;
+    printf("\n[SCHEDULER QUEUE] active: %p tail: %p len: %zu\n", 
+            schedule.active_thread, schedule.tail, schedule.count);
+    do {
+        print_sch_thread(cur);
+        cur = cur->sched_next;
+    } while (cur->tid != schedule.active_thread->tid);
+
+    printf("[END OF QUEUE]\n\n");
+}
+
+
+void print_sch_thread(thread th) {
+    printf("thread %p sched_next %p sched_prev %p\n", 
+            th, th->sched_next, th->sched_prev);
+
+}
+
