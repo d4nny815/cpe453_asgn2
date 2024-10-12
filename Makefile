@@ -6,7 +6,7 @@ BUILD_DIR = build
 
 .PHONY: all liblwp dirs clean gdb
 
-all: dirs liblwp numbers 
+all: dirs liblwp test_schedulers 
 #all: dirs liblwp lwp_test
 
 # Build library
@@ -30,13 +30,6 @@ $(BUILD_DIR)/magic64.o: magic64.S
 dirs: 
 	@mkdir -p $(BUILD_DIR)
 
-# Test Program 
-lwp_test: $(BUILD_DIR)/lwp_test.o liblwp
-	$(CC) $(CFLAGS) -L. -o $@ $< -llwp
-
-$(BUILD_DIR)/lwp_test.o: lwp_test.c lwp.h
-	$(CC) $(CFLAGS) -c $< -o $@ 
-
 # Demo Program
 numbers: $(BUILD_DIR)/numbersmain.o liblwp
 	$(CC) $(CFLAGS) -L. -o $@ $< -llwp
@@ -44,7 +37,9 @@ numbers: $(BUILD_DIR)/numbersmain.o liblwp
 $(BUILD_DIR)/numbersmain.o: demos/numbersmain.c lwp.h
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
-
+# His lib
+test_schedulers: $(BUILD_DIR)/numbersmain.o $(BUILD_DIR)/schedulers.o
+	$(CC) $(CFLAGS) -L./lib64 -o $@ $^ lib64/libPLN.so -lPLN
 
 clean:
-	rm -rf $(BUILD_DIR) *.a *.so lwp_test numbers
+	rm -rf $(BUILD_DIR) *.a *.so core.* lwp_test numbers test_schedulers
