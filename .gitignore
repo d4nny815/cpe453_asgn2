@@ -8,3 +8,5 @@ numbers
 DETAILS*
 .nfs*
 test_schedulers
+core.*
+test

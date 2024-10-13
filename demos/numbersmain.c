@@ -59,7 +59,7 @@ int main(int argc, char *argv[]){
   for(i=1;i<=5;i++) {
     lwp_create((lwpfun)indentnum,(void*)i);
   }
-  print_scheduler();
+  // print_scheduler();
   lwp_start();
 
   /* wait for the other LWPs */

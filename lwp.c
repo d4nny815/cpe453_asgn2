@@ -117,7 +117,7 @@ void lwp_yield(void) {
     // find what the next thread in the cur_schedulerr is
 
     // take the current thread and make copy so you can update it to next curr
-    thread old_thread = cur_thread;    
+    // thread old_thread = cur_thread;    
     // move the old process to back of cur_schedulerr
     // cur_scheduler->remove(cur_thread);
     // #ifdef DEBUG
@@ -132,6 +132,7 @@ void lwp_yield(void) {
     //     #endif
     // }
 
+    thread old_thread = cur_thread;    
     thread next_thread = cur_scheduler->next();
     #ifdef DEBUG
     printf("[LWP_YIELD] cur_thread %lu next %lu\n", 
@@ -177,14 +178,26 @@ void lwp_exit(int exitval) {
     add_2_waitlist(cur_thread);
 
     // remove from the cur_schedulerr
-    //cur_scheduler->remove(cur_thread);
+    cur_scheduler->remove(cur_thread);
 
-    if (cur_scheduler->qlen() > 1) {
+    // ? should this be 0 or 1
+    if (cur_scheduler->qlen() > 0) {
         lwp_yield();
+    } else {
+        // TODO: how do we get back to main?
+        swap_rfiles(&cur_thread->state, &(tid2thread(main_id)->state));
+        // swap_rfiles(NULL, &(tid2thread(main_id)->state));
+        free(tid2thread(main_id));
     }
+
+    // TODO: if main is last one free its stuff
 
     return;
 }
+
+
+
+
 
 
 // ? what is status for?

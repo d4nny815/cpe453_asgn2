@@ -67,15 +67,19 @@ void rr_remove(thread victim) {
 
     // If victim is the head (active_thread) and there are more threads
     if (victim == schedule_info.active_thread) {
-        schedule_info.tail->sched_next = schedule_info.active_thread->sched_next;
-        schedule_info.active_thread->sched_next->sched_prev = schedule_info.tail;
+        schedule_info.tail->sched_next = 
+                schedule_info.active_thread->sched_next;
+        schedule_info.active_thread->sched_next->sched_prev = 
+                schedule_info.tail;
         schedule_info.active_thread = schedule_info.active_thread->sched_next;
         schedule_info.active_thread = victim->sched_next;
     }
     // If victim is the tail 
     else if (victim == schedule_info.tail) {
-        schedule_info.tail->sched_prev->sched_next = schedule_info.active_thread;
-        schedule_info.active_thread->sched_prev = schedule_info.tail->sched_prev;
+        schedule_info.tail->sched_prev->sched_next = 
+                schedule_info.active_thread;
+        schedule_info.active_thread->sched_prev = 
+                schedule_info.tail->sched_prev;
         schedule_info.tail = schedule_info.tail->sched_prev;
     }
     // If victim is somewhere in the middle
@@ -108,7 +112,8 @@ int qlen() {
 void print_scheduler() {
     thread cur = schedule_info.active_thread;
     printf("\n[SCHEDULER QUEUE] active: %p tail: %p len: %d\n", 
-            schedule_info.active_thread, schedule_info.tail, schedule_info.count);
+            schedule_info.active_thread, schedule_info.tail, 
+            schedule_info.count);
     do {
         print_sch_thread(cur);
         cur = cur->sched_next;
