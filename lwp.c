@@ -20,6 +20,9 @@ static void add_2_biglist(thread thread_to_add);
 static void remove_from_big_list(thread thread_to_remove);
 static int on_wl_o_nah(thread sus_thread);
 
+//! trying this out
+void print_waitlist();
+
 // function creates and returns the TID of the process it created
 tid_t lwp_create(lwpfun function, void *argument) {
     // create the thread
@@ -152,6 +155,11 @@ void lwp_exit(int exitval) {
     // else 
     //      insert it into the waitlist before the head
 
+    //if the scheduler is empty and nothing in the waitlist then do nothing
+    if (cur_scheduler->qlen() == 0 && (waitlist_head == NULL)) {
+        return;
+    }
+
     if (cur_thread == NULL) {
         return;
     }
@@ -194,10 +202,6 @@ void lwp_exit(int exitval) {
 
     return;
 }
-
-
-
-
 
 
 // ? what is status for?
@@ -262,7 +266,7 @@ tid_t lwp_gettid (void) {
 thread tid2thread (tid_t tid) {
     thread cur = threadlist_head;
     while (cur) {
-        if (cur->tid == tid) {
+        if (cur->tid == tid &&  cur->status != LWP_TERM) {
             return cur;
         }
         cur = cur->lib_tl_next;
@@ -321,6 +325,22 @@ static int on_wl_o_nah(thread sus_thread){
     }
     return 0;
 }
+
+void print_waitlist() {
+    thread current = waitlist_head;
+
+    if (current == NULL) {
+        printf("[WAITLIST] Waitlist is empty.\n");
+        return;
+    }
+
+    printf("[WAITLIST] Current threads in waitlist:\n");
+    while (current) {
+        printf("    Thread ID: %lu, Status: %d\n", current->tid, current->status);
+        current = current->lib_wl_next;
+    }
+}
+
 
 static void add_2_biglist(thread thread_to_add){
      if (threadlist_head == NULL) {
