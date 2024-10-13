@@ -107,11 +107,6 @@ void lwp_start(void) {
         printf("[LWP_START] Th %lu is admitting Th %lu\n", 
             cur_thread->tid, thread_main->tid);
     #endif
-    //#ifdef DEBUG
-    //printf("here are all threads in biglist\n");
-    //print_all_threads();
-    //print_scheduler();
-    //#endif
 
     //  call yield
     lwp_yield();
@@ -124,18 +119,18 @@ void lwp_yield(void) {
     // take the current thread and make copy so you can update it to next curr
     thread old_thread = cur_thread;    
     // move the old process to back of cur_schedulerr
-    cur_scheduler->remove(cur_thread);
-    #ifdef DEBUG
-    printf("[LWP_YIELD] Th %lu is removing Th %lu\n", 
-            cur_thread->tid, cur_thread->tid);
-    #endif
-    if (cur_thread && !on_wl_o_nah(cur_thread)) {
-        cur_scheduler->admit(cur_thread);
-        #ifdef DEBUG
-            printf("[LWP_YIELD] Th %lu is admitting Th %lu\n", 
-                cur_thread->tid, cur_thread->tid);
-        #endif
-    }
+    // cur_scheduler->remove(cur_thread);
+    // #ifdef DEBUG
+    // printf("[LWP_YIELD] Th %lu is removing Th %lu\n", 
+    //         cur_thread->tid, cur_thread->tid);
+    // #endif
+    // if (cur_thread && !on_wl_o_nah(cur_thread)) {
+    //     cur_scheduler->admit(cur_thread);
+    //     #ifdef DEBUG
+    //         printf("[LWP_YIELD] Th %lu is admitting Th %lu\n", 
+    //             cur_thread->tid, cur_thread->tid);
+    //     #endif
+    // }
 
     thread next_thread = cur_scheduler->next();
     #ifdef DEBUG
@@ -143,8 +138,6 @@ void lwp_yield(void) {
             cur_thread->tid, next_thread->tid);
     #endif
     cur_thread = next_thread;
-
-
 
     // swap that hoeeeee
     swap_rfiles(&old_thread->state, &cur_thread->state);
