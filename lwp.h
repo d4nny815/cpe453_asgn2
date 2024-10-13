@@ -1,6 +1,6 @@
 #ifndef LWPH
 #define LWPH
-// #define DEBUG (1)
+#define DEBUG (1)
 
 #include <sys/types.h>
 #include <sys/mman.h>

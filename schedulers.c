@@ -30,7 +30,7 @@ void rr_admit(thread new_thread) {
         new_thread->sched_prev = new_thread;
         schedule_info.active_thread = new_thread;
         schedule_info.tail = new_thread;
-        schedule_info.count = 0;
+        schedule_info.count = 1;
     } else {
         //find the current tail and add it on
         thread curtail = schedule_info.tail;
@@ -48,9 +48,9 @@ void rr_admit(thread new_thread) {
         schedule_info.active_thread->sched_prev = new_thread;
 
         schedule_info.tail = new_thread;
+        schedule_info.count++;
     }
 
-    schedule_info.count++;
     //printf("[RR_ADMIT] thread %lu admited\n", new_thread->tid);
 } 
 
