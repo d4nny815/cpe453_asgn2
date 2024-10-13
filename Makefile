@@ -6,7 +6,7 @@ BUILD_DIR = build
 
 .PHONY: all liblwp dirs clean gdb
 
-all: dirs liblwp numbers
+all: dirs liblwp test_schedulers 
 #all: dirs liblwp lwp_test
 
 # Build library
