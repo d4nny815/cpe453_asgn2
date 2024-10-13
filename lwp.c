@@ -18,6 +18,7 @@ static void add_2_waitlist(thread thread_to_add);
 static void insert_waitlist_head(thread thread_to_insert);
 static void add_2_biglist(thread thread_to_add);
 static void remove_from_big_list(thread thread_to_remove);
+static int on_wl_o_nah(thread sus_thread);
 
 // function creates and returns the TID of the process it created
 tid_t lwp_create(lwpfun function, void *argument) {
@@ -111,14 +112,16 @@ void lwp_start(void) {
 
 void lwp_yield(void) {
     // find what the next thread in the cur_schedulerr is
-    thread next_thread = cur_scheduler->next();
 
     // take the current thread and make copy so you can update it to next curr
     thread old_thread = cur_thread;    
     // move the old process to back of cur_schedulerr
     cur_scheduler->remove(cur_thread);
-    cur_scheduler->admit(cur_thread);
+    if (!on_wl_o_nah(cur_thread)) {
+        cur_scheduler->admit(cur_thread);
+    }
 
+    thread next_thread = cur_scheduler->next();
 
     cur_thread = next_thread;
 
@@ -271,6 +274,17 @@ static thread remove_waitlist() {
     return thread_removed;
 }
 
+static int on_wl_o_nah(thread sus_thread){
+    thread cur = waitlist_head;
+    while (cur != NULL){
+        if (cur->tid == sus_thread->tid){
+            return 1;
+        }
+        cur = cur->lib_wl_next;
+    }
+    return 0;
+}
+
 static void add_2_biglist(thread thread_to_add){
      if (threadlist_head == NULL) {
         threadlist_head = thread_to_add;
@@ -323,6 +337,14 @@ static void lwp_wrap(lwpfun fun, void* arg) {
     rval = fun(arg);
     lwp_exit(rval);
     return;
+}
+
+scheduler lwp_get_scheduler(){
+    return cur_scheduler;
+}
+
+void lwp_set_scheduler(scheduler sched){
+
 }
 
 

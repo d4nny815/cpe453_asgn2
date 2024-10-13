@@ -143,6 +143,11 @@ Start:
 - and thats how it starts!!
 
 Yield: 
+- move current process to end of scheduler if not on the waitlist
+- get the next process to run
+- swap r files 
+
+
 - should call next from the scheduler to see which thread is next
 - calls swap r files with the curernt thread and the next thread 
 

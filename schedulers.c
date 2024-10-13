@@ -105,10 +105,10 @@ void rr_remove(thread victim){
 
 
 thread next() {
-    if (schedule_info.active_thread == NULL){
+    if (schedule_info.tail == NULL){
         return NULL;
     }
-    return schedule_info.active_thread;
+    return schedule_info.tail->sched_next;
 }
 
 
