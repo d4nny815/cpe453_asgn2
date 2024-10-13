@@ -97,6 +97,12 @@ void lwp_start(void) {
 
     // admit new thread to the cur_schedulerr
     cur_scheduler->admit(thread_main);
+   
+    //#ifdef DEBUG
+    //printf("here are all threads in biglist\n");
+    //print_all_threads();
+    //print_scheduler();
+    //#endif
 
     //  call yield
     lwp_yield();
@@ -115,6 +121,13 @@ void lwp_yield(void) {
 
 
     cur_thread = next_thread;
+
+    #ifdef DEBUG
+    //printf("here are all threads in biglist\n");
+    //print_all_threads();
+    print_scheduler();
+    #endif
+
 
     // swap that hoeeeee
     swap_rfiles(&old_thread->state, &cur_thread->state);
@@ -315,7 +328,7 @@ static void lwp_wrap(lwpfun fun, void* arg) {
 
 void print_thread(thread p_thread) {
     printf("Thread %lu @ %p {\n\tstack_addr = %p stack_size = 0x%zu\n\t"
-            "lib_tl_next %p, lib_prev %p\n\tsched_next"
+            "lib_tl_next %p, lib_wl_next %p\n\tsched_next"
             " = %p, sched_prev = %p\n\texited = %p\n}\n", 
             p_thread->tid, p_thread, p_thread->stack, p_thread->stacksize, 
             p_thread->lib_tl_next, p_thread->lib_wl_next, 

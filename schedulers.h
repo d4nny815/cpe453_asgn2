@@ -13,6 +13,8 @@ extern scheduler ChooseHighestColor;
 extern scheduler ChooseLowestColor;
 */
 
+void print_scheduler();
+
 extern scheduler RoundRobin;
 extern scheduler cur_scheduler;
 

@@ -1,0 +1,217 @@
+Launching LWPS
+
+[SCHEDULER QUEUE] active: 0x1a03010 tail: 0x1a03e70 len: 6
+thread 0x1a03010 ID: 1 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+[END OF QUEUE]
+
+    1
+
+[SCHEDULER QUEUE] active: 0x1a032f0 tail: 0x1a03010 len: 6
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 1 sched_next 0x1a032f0 sched_prev 0x1a03e70
+[END OF QUEUE]
+
+
+[SCHEDULER QUEUE] active: 0x1a032f0 tail: 0x1a03010 len: 5
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 1 sched_next 0x1a032f0 sched_prev 0x1a03e70
+[END OF QUEUE]
+
+         2
+
+[SCHEDULER QUEUE] active: 0x1a035d0 tail: 0x1a032f0 len: 5
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 1 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+[END OF QUEUE]
+
+         2
+
+[SCHEDULER QUEUE] active: 0x1a035d0 tail: 0x1a032f0 len: 5
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 1 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+[END OF QUEUE]
+
+              3
+
+[SCHEDULER QUEUE] active: 0x1a038b0 tail: 0x1a035d0 len: 5
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 1 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+[END OF QUEUE]
+
+              3
+
+[SCHEDULER QUEUE] active: 0x1a038b0 tail: 0x1a035d0 len: 5
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 1 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+[END OF QUEUE]
+
+                   4
+
+[SCHEDULER QUEUE] active: 0x1a03b90 tail: 0x1a038b0 len: 5
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 1 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+[END OF QUEUE]
+
+                   4
+
+[SCHEDULER QUEUE] active: 0x1a03b90 tail: 0x1a038b0 len: 5
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 1 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+[END OF QUEUE]
+
+                        5
+
+[SCHEDULER QUEUE] active: 0x1a03e70 tail: 0x1a03b90 len: 5
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 1 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+[END OF QUEUE]
+
+                        5
+
+[SCHEDULER QUEUE] active: 0x1a03e70 tail: 0x1a03b90 len: 5
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 1 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+[END OF QUEUE]
+
+Thread 1 exited with status 1
+
+[SCHEDULER QUEUE] active: 0x1a03010 tail: 0x1a03e70 len: 4
+thread 0x1a03010 ID: 140673479649208 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+[END OF QUEUE]
+
+
+[SCHEDULER QUEUE] active: 0x1a032f0 tail: 0x1a03010 len: 4
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03e70
+thread 0x1a03010 ID: 140673479649208 sched_next 0x1a032f0 sched_prev 0x1a03e70
+[END OF QUEUE]
+
+
+[SCHEDULER QUEUE] active: 0x1a035d0 tail: 0x1a032f0 len: 3
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03e70
+thread 0x1a03010 ID: 140673479649208 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+[END OF QUEUE]
+
+              3
+
+[SCHEDULER QUEUE] active: 0x1a038b0 tail: 0x1a035d0 len: 3
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03e70
+thread 0x1a03010 ID: 140673479649208 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+[END OF QUEUE]
+
+
+[SCHEDULER QUEUE] active: 0x1a038b0 tail: 0x1a035d0 len: 2
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03e70
+thread 0x1a03010 ID: 140673479649208 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+[END OF QUEUE]
+
+                   4
+
+[SCHEDULER QUEUE] active: 0x1a03b90 tail: 0x1a038b0 len: 2
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03e70
+thread 0x1a03010 ID: 140673479649208 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+[END OF QUEUE]
+
+                   4
+
+[SCHEDULER QUEUE] active: 0x1a03b90 tail: 0x1a038b0 len: 2
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03e70
+thread 0x1a03010 ID: 140673479649208 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+[END OF QUEUE]
+
+                        5
+
+[SCHEDULER QUEUE] active: 0x1a03e70 tail: 0x1a03b90 len: 2
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 140673479649208 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+[END OF QUEUE]
+
+                        5
+
+[SCHEDULER QUEUE] active: 0x1a03e70 tail: 0x1a03b90 len: 2
+thread 0x1a03e70 ID: 6 sched_next 0x1a03010 sched_prev 0x1a03b90
+thread 0x1a03010 ID: 140673479649208 sched_next 0x1a032f0 sched_prev 0x1a03e70
+thread 0x1a032f0 ID: 2 sched_next 0x1a035d0 sched_prev 0x1a03010
+thread 0x1a035d0 ID: 3 sched_next 0x1a038b0 sched_prev 0x1a032f0
+thread 0x1a038b0 ID: 4 sched_next 0x1a03b90 sched_prev 0x1a035d0
+thread 0x1a03b90 ID: 5 sched_next 0x1a03e70 sched_prev 0x1a038b0
+[END OF QUEUE]
+
+Thread 0 exited with status 1

@@ -11,7 +11,7 @@ struct SchedulerInfo_t {
 struct scheduler rr = {NULL, NULL, rr_admit, rr_remove, next, qlen};
 scheduler cur_scheduler = &rr;
 
-void print_scheduler();
+//void print_scheduler();
 void print_sch_thread(thread th);
 
 // TODO:
@@ -108,15 +108,12 @@ thread next() {
     if (schedule_info.active_thread == NULL){
         return NULL;
     }
-    return schedule_info.active_thread->sched_next;
+    return schedule_info.active_thread;
 }
 
 
 int qlen() {
     return schedule_info.count;
-        //if its none of those
-        //if its none of those
-        //if its none of those
 }
 
 
@@ -134,8 +131,8 @@ void print_scheduler() {
 
 
 void print_sch_thread(thread th) {
-    printf("thread %p sched_next %p sched_prev %p\n", 
-            th, th->sched_next, th->sched_prev);
+    printf("thread %p ID: %lu sched_next %p sched_prev %p\n", 
+            th, th->tid, th->sched_next, th->sched_prev);
 
 }
 

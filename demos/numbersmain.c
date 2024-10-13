@@ -58,7 +58,6 @@ int main(int argc, char *argv[]){
   for(i=1;i<=5;i++) {
     lwp_create((lwpfun)indentnum,(void*)i);
   }
-    print_all_threads();
   lwp_start();
 
   /* wait for the other LWPs */
