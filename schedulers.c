@@ -25,6 +25,7 @@ void rr_admit(thread new_thread) {
     //sched_next = sched_next
     //sched_prev = sched_prev
     //set the head and tail
+    printf("OTHEWIUFNJKEWFJK\n");
     if (schedule_info.active_thread == NULL) {
         new_thread->sched_next = new_thread;
         new_thread->sched_prev = new_thread;
