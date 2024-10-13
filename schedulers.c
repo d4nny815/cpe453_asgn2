@@ -12,11 +12,7 @@ struct scheduler rr = {NULL, NULL, rr_admit, rr_remove, next, qlen};
 scheduler cur_scheduler = &rr;
 
 //void print_scheduler();
-void print_sch_thread(thread th);
-
-// TODO:
-// ? when are we moving the current active? in remove or admit?
-// ? remove if active should move the active to next
+void print_sch_thread(thread th); // TODO: exile this 
 
 void rr_admit(thread new_thread) {
     //if this is the first thread in the list
@@ -102,7 +98,6 @@ thread next() {
     schedule_info.active_thread = schedule_info.active_thread->sched_next;
     return ret_thread;
 }
-
 
 
 int qlen() {
