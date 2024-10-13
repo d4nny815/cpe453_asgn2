@@ -19,13 +19,11 @@ void print_sch_thread(thread th);
 // ? remove if active should move the active to next
 
 void rr_admit(thread new_thread) {
-
     //if this is the first thread in the list
     //add it and make it point to itself
     //sched_next = sched_next
     //sched_prev = sched_prev
     //set the head and tail
-    printf("OTHEWIUFNJKEWFJK\n");
     if (schedule_info.active_thread == NULL) {
         new_thread->sched_next = new_thread;
         new_thread->sched_prev = new_thread;
@@ -53,64 +51,58 @@ void rr_admit(thread new_thread) {
     }
 
     //printf("[RR_ADMIT] thread %lu admited\n", new_thread->tid);
+    return;
 } 
 
 
-void rr_remove(thread victim){
-    //if nothing in there, return NULL
-    if(schedule_info.active_thread == NULL){
+void rr_remove(thread victim) {
+    // If no threads are in the scheduler, return
+    if (schedule_info.active_thread == NULL) {
         return;
     }
 
-    //if one to remove is the head and thats the only one
-    if (schedule_info.count == 1){
-        victim->sched_next = NULL;
-        victim->sched_prev = NULL;
-
-        //update in the global
+    // If there's only one thread in the scheduler
+    if (schedule_info.count == 1 && schedule_info.active_thread == victim) {
         schedule_info.active_thread = NULL;
         schedule_info.tail = NULL;
-        schedule_info.count--;
+        schedule_info.count = 0;
         return;
     }
 
-    //if one to remove is the head and there are more
-    if (victim == schedule_info.active_thread){
+    // If victim is the head (active_thread) and there are more threads
+    if (victim == schedule_info.active_thread) {
         schedule_info.tail->sched_next = schedule_info.active_thread->sched_next;
         schedule_info.active_thread->sched_next->sched_prev = schedule_info.tail;
-        
-        //update the global variable cha fel
         schedule_info.active_thread = schedule_info.active_thread->sched_next;
-        
+        schedule_info.active_thread = victim->sched_next;
     }
-
-    //if the one to remove is the tail 
-    else if (victim == schedule_info.tail){
+    // If victim is the tail 
+    else if (victim == schedule_info.tail) {
         schedule_info.tail->sched_prev->sched_next = schedule_info.active_thread;
         schedule_info.active_thread->sched_prev = schedule_info.tail->sched_prev;
-
-        schedule_info.tail = schedule_info.tail->sched_prev; 
-
+        schedule_info.tail = schedule_info.tail->sched_prev;
     }
-
-    //if its none of those
+    // If victim is somewhere in the middle
     else {
         victim->sched_next->sched_prev = victim->sched_prev;
         victim->sched_prev->sched_next = victim->sched_next;
     }
 
+    // Decrement the thread count
     schedule_info.count--;
-    //printf("[RR_REMOVE] thread %lu removed\n", victim->tid);
-    return;
 }
-
 
 thread next() {
-    if (schedule_info.tail == NULL){
+    if (schedule_info.active_thread == NULL) {
         return NULL;
     }
-    return schedule_info.tail->sched_next;
+
+    // Move to the next thread in the circular list and return it
+    thread ret_thread = schedule_info.active_thread;
+    schedule_info.active_thread = schedule_info.active_thread->sched_next;
+    return ret_thread;
 }
+
 
 
 int qlen() {
