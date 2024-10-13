@@ -31,8 +31,7 @@ void rr_admit(thread new_thread) {
         schedule_info.active_thread = new_thread;
         schedule_info.tail = new_thread;
         schedule_info.count = 0;
-    } 
-    else {
+    } else {
         //find the current tail and add it on
         thread curtail = schedule_info.tail;
 
@@ -82,26 +81,24 @@ void rr_remove(thread victim){
         //update the global variable cha fel
         schedule_info.active_thread = schedule_info.active_thread->sched_next;
         
-        schedule_info.count--;
-        return;
     }
 
     //if the one to remove is the tail 
-    if (victim == schedule_info.tail){
+    else if (victim == schedule_info.tail){
         schedule_info.tail->sched_prev->sched_next = schedule_info.active_thread;
         schedule_info.active_thread->sched_prev = schedule_info.tail->sched_prev;
 
         schedule_info.tail = schedule_info.tail->sched_prev; 
 
-        schedule_info.count--;
-        return;
     }
 
     //if its none of those
-    victim->sched_next->sched_prev = victim->sched_prev;
-    victim->sched_prev->sched_next = victim->sched_next;
-    schedule_info.count--;
+    else {
+        victim->sched_next->sched_prev = victim->sched_prev;
+        victim->sched_prev->sched_next = victim->sched_next;
+    }
 
+    schedule_info.count--;
     //printf("[RR_REMOVE] thread %lu removed\n", victim->tid);
     return;
 }
@@ -117,6 +114,9 @@ thread next() {
 
 int qlen() {
     return schedule_info.count;
+        //if its none of those
+        //if its none of those
+        //if its none of those
 }
 
 

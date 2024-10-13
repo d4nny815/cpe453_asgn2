@@ -13,7 +13,7 @@ extern scheduler ChooseHighestColor;
 extern scheduler ChooseLowestColor;
 */
 
-extern sceduler RoundRobin;
+extern scheduler RoundRobin;
 extern scheduler cur_scheduler;
 
 void rr_admit(thread new_thread);

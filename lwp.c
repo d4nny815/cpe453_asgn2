@@ -10,7 +10,7 @@ static tid_t main_id = 0;
 
 // helper function
 void print_thread(thread p_thread);
-void print_all_threads();
+//void print_all_threads();
 void print_waitlist();
 static void lwp_wrap(lwpfun fun, void* arg);
 static thread remove_waitlist();
@@ -314,11 +314,11 @@ static void lwp_wrap(lwpfun fun, void* arg) {
 
 
 void print_thread(thread p_thread) {
-    printf("Thread %lu {\n\tstack_addr = %p stack_size = 0x%zu\n\t"
-            "rfile = %s\n\tlib_tl_next %p, lib_prev %p\n\tsched_next"
+    printf("Thread %lu @ %p {\n\tstack_addr = %p stack_size = 0x%zu\n\t"
+            "lib_tl_next %p, lib_prev %p\n\tsched_next"
             " = %p, sched_prev = %p\n\texited = %p\n}\n", 
-            p_thread->tid, p_thread->stack, p_thread->stacksize, 
-            "tmp", p_thread->lib_tl_next, p_thread->lib_wl_next, 
+            p_thread->tid, p_thread, p_thread->stack, p_thread->stacksize, 
+            p_thread->lib_tl_next, p_thread->lib_wl_next, 
             p_thread->sched_next, p_thread->sched_prev, 
             p_thread->exited);
 

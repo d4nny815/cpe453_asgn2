@@ -95,5 +95,6 @@ extern thread tid2thread(tid_t tid);
 void swap_rfiles(rfile *old, rfile *new);
 
 #define WORD_SIZE (sizeof(void*))
+void print_all_threads();
 
 #endif
