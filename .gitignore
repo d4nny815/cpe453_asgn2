@@ -3,3 +3,7 @@
 *.so
 build/
 *.swp
+lwp_test
+numbers
+DETAILS*
+.nfs*
