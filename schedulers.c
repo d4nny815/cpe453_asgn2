@@ -14,6 +14,7 @@ scheduler cur_scheduler = &rr;
 //void print_scheduler();
 void print_sch_thread(thread th); // TODO: exile this 
 
+// FIXME: something wrong here
 void rr_admit(thread new_thread) {
     //if this is the first thread in the list
     //add it and make it point to itself
@@ -100,6 +101,7 @@ thread next() {
     // Move to the next thread in the circular list and return it
     thread ret_thread = schedule_info.active_thread;
     schedule_info.active_thread = schedule_info.active_thread->sched_next;
+    schedule_info.tail = ret_thread;
     return ret_thread;
 }
 
@@ -114,6 +116,7 @@ void print_scheduler() {
     printf("\n[SCHEDULER QUEUE] active: %p tail: %p len: %d\n", 
             schedule_info.active_thread, schedule_info.tail, 
             schedule_info.count);
+    if (cur == NULL) return;
     do {
         print_sch_thread(cur);
         cur = cur->sched_next;

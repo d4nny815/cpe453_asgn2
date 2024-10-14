@@ -6,7 +6,7 @@ BUILD_DIR = build
 
 .PHONY: all liblwp dirs clean gdb
 
-#all: dirs liblwp test_schedulers 
+# all: dirs liblwp numbers nico_test
 all: dirs liblwp numbers
 
 # Build library
@@ -41,5 +41,14 @@ $(BUILD_DIR)/numbersmain.o: demos/numbersmain.c lwp.h
 test_schedulers: $(BUILD_DIR)/numbersmain.o $(BUILD_DIR)/schedulers.o
 	$(CC) $(CFLAGS) -L./lib64 -o $@ $^ lib64/libPLN.so -lPLN
 
+# target test case
+nico_test: $(BUILD_DIR)/nico_test.o liblwp 
+	$(CC) $(CFLAGS) -L. -o $@ $< -llwp
+
+
+$(BUILD_DIR)/nico_test.o: nico_test.c lwp.h 
+	$(CC) $(CFLAGS) -c $< -o $@ 
+
+# house keeping
 clean:
 	rm -rf $(BUILD_DIR) *.a *.so core.* lwp_test numbers test_schedulers

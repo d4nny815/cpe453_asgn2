@@ -20,8 +20,6 @@ static void add_2_biglist(thread thread_to_add);
 static void remove_from_big_list(thread thread_to_remove);
 static int on_wl_o_nah(thread sus_thread);
 
-//! trying this out
-void print_waitlist();
 
 // function creates and returns the TID of the process it created
 tid_t lwp_create(lwpfun function, void *argument) {
@@ -140,8 +138,10 @@ void lwp_yield(void) {
     #ifdef DEBUG
     printf("[LWP_YIELD] cur_thread %lu next %lu\n", 
             cur_thread->tid, next_thread->tid);
+    print_scheduler();
     #endif
     cur_thread = next_thread;
+
 
     // swap that hoeeeee
     swap_rfiles(&old_thread->state, &cur_thread->state);
@@ -149,13 +149,12 @@ void lwp_yield(void) {
 
 
 void lwp_exit(int exitval) {
-    // pop off the head 
-    // check if the term status is not term (it is waiting)
-    //      put back in cur_schedulerr 
-    // else 
-    //      insert it into the waitlist before the head
 
-    //if the scheduler is empty and nothing in the waitlist then do nothing
+    //waitlist at the start? should be empty 
+    // #ifdef DEBUG
+    // print_waitlist();
+    // #endif
+
     if (cur_scheduler->qlen() == 0 && (waitlist_head == NULL)) {
         return;
     }
@@ -165,6 +164,12 @@ void lwp_exit(int exitval) {
     }
 
     thread wl_thread = remove_waitlist();
+
+    //waitlist after something has been removed
+    // #ifdef DEBUG
+    // print_waitlist();
+    // #endif
+
     if (wl_thread != NULL) {
         if (!LWPTERMINATED(wl_thread->status)) {
             cur_scheduler->admit(wl_thread);
@@ -173,9 +178,13 @@ void lwp_exit(int exitval) {
                 printf("[LWP_EXIT] Th %lu is admitting Th %lu\n", 
                         cur_thread->tid, wl_thread->tid);
             }
+            print_scheduler();
             #endif
         } else {
             insert_waitlist_head(wl_thread);
+
+            //waitlist afer something has been inserted back in
+            //print_waitlist();
         }
     }
 
@@ -188,12 +197,25 @@ void lwp_exit(int exitval) {
     // remove from the cur_schedulerr
     cur_scheduler->remove(cur_thread);
 
+    #ifdef DEBUG
+    if (cur_thread != NULL) {
+        printf("[LWP_EXIT] Th %lu is removing itself\n", 
+                cur_thread->tid);
+    }
+    print_waitlist();
+    print_scheduler();
+    #endif
+
+    //waitlist after adding something
+
+    
+
     // ? should this be 0 or 1
     if (cur_scheduler->qlen() > 0) {
         lwp_yield();
     } else {
         // TODO: how do we get back to main?
-        swap_rfiles(&cur_thread->state, &(tid2thread(main_id)->state));
+        // swap_rfiles(&cur_thread->state, &(tid2thread(main_id)->state));
         // swap_rfiles(NULL, &(tid2thread(main_id)->state));
         free(tid2thread(main_id));
     }
@@ -207,6 +229,8 @@ void lwp_exit(int exitval) {
 // ? what is status for?
 tid_t lwp_wait(int *status) {
     thread terminated_thread;
+    
+    HEHE:
     if (waitlist_head) { 
         // take the oldest terminated therad out from the waitlist 
         terminated_thread = remove_waitlist();
@@ -216,7 +240,8 @@ tid_t lwp_wait(int *status) {
             *status = terminated_thread->status;
             tid_t id_to_return = terminated_thread->tid;
             #ifdef DEBUG
-                printf("[LWP_WAIT] killing thread %lu\n", id_to_return);
+                printf("[LWP_WAIT] Th %zu is killing thread %lu\n", 
+                cur_thread->tid, id_to_return);
             #endif
             remove_from_big_list(terminated_thread);
             munmap((void*)((intptr_t)terminated_thread - STACK_SIZE), 
@@ -227,17 +252,16 @@ tid_t lwp_wait(int *status) {
         return main_id;
     }
 
-    // ! we should do this check first
-    // ? maybe a goto?
     // if there is more than one in the cur_schedulerr
-    if (cur_scheduler->qlen() > 1) {
+    if (cur_scheduler->qlen() >= 1) {
         cur_scheduler->remove(cur_thread);
         #ifdef DEBUG
         printf("[LWP_WAIT] Th %lu is removing Th %lu cuz waiting\n", 
                 cur_thread->tid, cur_thread->tid);
         #endif
         insert_waitlist_head(cur_thread);
-        lwp_yield();       
+        lwp_yield();     
+        goto HEHE;  
     }
     return NO_THREAD;
 
@@ -268,7 +292,7 @@ tid_t lwp_gettid (void) {
 thread tid2thread (tid_t tid) {
     thread cur = threadlist_head;
     while (cur) {
-        if (cur->tid == tid &&  cur->status != LWP_TERM) {
+        if (cur->tid == tid && !LWPTERMINATED(cur->status)) {
             return cur;
         }
         cur = cur->lib_tl_next;

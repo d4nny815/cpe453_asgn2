@@ -157,6 +157,14 @@ Exit:
 - take the current thread and add it to the wait list 
 - take the current threat and remove it from the scheduler
 
+// pop off the head 
+    // check if the term status is not term (it is waiting)
+    //      put back in cur_schedulerr 
+    // else 
+    //      insert it into the waitlist before the head
+
+    //if the scheduler is empty and nothing in the waitlist then do nothing
+
 Wait: 
 - check if there is only one process in the scheduler
 - if there is only one that means the program is done
