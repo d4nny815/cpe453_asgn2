@@ -45,15 +45,14 @@ tid_t lwp_create(lwpfun function, void *argument) {
 
     // fill in the thread struct details
     intptr_t old_bp = (intptr_t) init_ptr;    
-    void* p_fr_bp = (void*)((intptr_t) init_ptr + STACK_SIZE);
-    // ? this be ptr to useable stack
+    void* p_fr_bp = (void*)((intptr_t) init_ptr + STACK_SIZE - WORD_SIZE);
     thread_created->stack = (unsigned long*) p_fr_bp; 
     thread_created->stacksize = STACK_SIZE;
     thread_created->stack = LWP_LIVE;
 
     // inject into the stack, return address, old base pointer*
     unsigned long* p_stack = (unsigned long*) p_fr_bp;;
-    // ? is this correct type casting
+    p_stack[0] = (unsigned long) lwp_exit;
     p_stack[-1] = (unsigned long) lwp_wrap; // RA 
     p_stack[-2] = (unsigned long) old_bp;
 
@@ -61,7 +60,8 @@ tid_t lwp_create(lwpfun function, void *argument) {
     rfile* init_rfile = &thread_created->state;
 
     // set the register pointers we need
-    intptr_t sp = (intptr_t) init_ptr + STACK_SIZE - 2 * WORD_SIZE;
+    intptr_t sp = (intptr_t) init_ptr + STACK_SIZE - 
+                    NUM_INJECTED_STACK_WORDS * WORD_SIZE;
     init_rfile->rsp = (unsigned long) sp;
     init_rfile->rbp = (unsigned long) sp;
     init_rfile->rdi = (unsigned long) function; 
@@ -227,6 +227,8 @@ tid_t lwp_wait(int *status) {
         return main_id;
     }
 
+    // ! we should do this check first
+    // ? maybe a goto?
     // if there is more than one in the cur_schedulerr
     if (cur_scheduler->qlen() > 1) {
         cur_scheduler->remove(cur_thread);
@@ -336,7 +338,8 @@ void print_waitlist() {
 
     printf("[WAITLIST] Current threads in waitlist:\n");
     while (current) {
-        printf("    Thread ID: %lu, Status: %d\n", current->tid, current->status);
+        printf("    Thread ID: %lu, Status: %d\n", 
+            current->tid, current->status);
         current = current->lib_wl_next;
     }
 }
