@@ -8,6 +8,9 @@ static thread waitlist_tail = NULL;
 static thread cur_thread = NULL;
 static tid_t main_id = 0;
 
+// default scheduler
+static scheduler cur_scheduler = NULL;
+
 // helper function
 void print_thread(thread p_thread);
 //void print_all_threads();
@@ -67,6 +70,10 @@ tid_t lwp_create(lwpfun function, void *argument) {
     init_rfile->fxsave = FPU_INIT;
 
     // admit new thread to the cur_schedulerr
+    cur_scheduler = lwp_get_scheduler();
+    if (cur_scheduler == NULL) {
+        cur_scheduler = RoundRobin;
+    }
     cur_scheduler->admit(thread_created);
     #ifdef DEBUG
     if (cur_thread != NULL) {
@@ -77,7 +84,7 @@ tid_t lwp_create(lwpfun function, void *argument) {
     // add to total thread list
     add_2_biglist(thread_created);
 
-    //print_cur_schedulerr();
+    //print_cur_scheduler();
     return thread_created->tid;
 }
 
@@ -101,6 +108,11 @@ void lwp_start(void) {
     // main thread is the current thread
     cur_thread = thread_main;
     add_2_biglist(thread_main);
+
+    cur_scheduler = lwp_get_scheduler();
+    if (cur_scheduler == NULL) {
+        cur_scheduler = RoundRobin;
+    }
 
     // admit new thread to the cur_schedulerr
     cur_scheduler->admit(thread_main);
@@ -133,6 +145,11 @@ void lwp_yield(void) {
     //     #endif
     // }
 
+    cur_scheduler = lwp_get_scheduler();
+    if (cur_scheduler == NULL) {
+        cur_scheduler = RoundRobin;
+    }
+
     thread old_thread = cur_thread;    
     thread next_thread = cur_scheduler->next();
     #ifdef DEBUG
@@ -155,6 +172,11 @@ void lwp_exit(int exitval) {
     // print_waitlist();
     // #endif
 
+    cur_scheduler = lwp_get_scheduler();
+    if (cur_scheduler == NULL) {
+        cur_scheduler = RoundRobin;
+    }
+
     if (cur_scheduler->qlen() == 0 && (waitlist_head == NULL)) {
         return;
     }
@@ -172,6 +194,12 @@ void lwp_exit(int exitval) {
 
     if (wl_thread != NULL) {
         if (!LWPTERMINATED(wl_thread->status)) {
+
+        cur_scheduler = lwp_get_scheduler();
+        if (cur_scheduler == NULL) {
+            cur_scheduler = RoundRobin;
+        }
+
             cur_scheduler->admit(wl_thread);
             #ifdef DEBUG
             if (cur_thread != NULL) {
@@ -194,6 +222,11 @@ void lwp_exit(int exitval) {
     // add to the wait list 
     add_2_waitlist(cur_thread);
 
+    cur_scheduler = lwp_get_scheduler();
+    if (cur_scheduler == NULL) {
+        cur_scheduler = RoundRobin;
+    }
+
     // remove from the cur_schedulerr
     cur_scheduler->remove(cur_thread);
 
@@ -207,8 +240,6 @@ void lwp_exit(int exitval) {
     #endif
 
     //waitlist after adding something
-
-    
 
     // ? should this be 0 or 1
     if (cur_scheduler->qlen() > 0) {
@@ -250,6 +281,11 @@ tid_t lwp_wait(int *status) {
             return id_to_return;
         }
         return main_id;
+    }
+
+    cur_scheduler = lwp_get_scheduler();
+    if (cur_scheduler == NULL) {
+        cur_scheduler = RoundRobin;
     }
 
     // if there is more than one in the cur_schedulerr
@@ -298,6 +334,50 @@ thread tid2thread (tid_t tid) {
         cur = cur->lib_tl_next;
     }
     return NULL;
+}
+
+
+scheduler lwp_get_scheduler(){
+
+    return cur_scheduler;
+}
+
+void lwp_set_scheduler(scheduler sched){
+    //if it is null, then just default to round robin 
+    if (sched == NULL) {
+        sched = cur_scheduler;
+    }
+
+    //initialize the new scheduler if it has that function
+    if (sched->init != NULL){
+        sched->init();
+    }
+    
+    //if the current scheduler is not empty, copy all the active threads over
+    if (cur_scheduler != NULL) {
+        thread cur_thread;
+
+        while (cur_scheduler->next() != NULL) {
+
+            //take it out of the old scheduler 
+            cur_scheduler->remove(cur_thread);
+
+            //put it into the new scheduler 
+            sched->admit(cur_thread);
+
+            //move to the next thread
+            cur_thread = cur_scheduler->next();
+        }
+
+    }
+
+    //check if shutdown exists
+    if (sched->shutdown != NULL) {
+        sched->shutdown();
+    }
+
+    //make the global cur_scheduler point to the right thing
+    cur_scheduler = sched;
 }
 
 
@@ -414,21 +494,11 @@ static void remove_from_big_list(thread thread_to_remove){
     return;
 }
 
-
-
 static void lwp_wrap(lwpfun fun, void* arg) {
     int rval; 
     rval = fun(arg);
     lwp_exit(rval);
     return;
-}
-
-scheduler lwp_get_scheduler(){
-    return cur_scheduler;
-}
-
-void lwp_set_scheduler(scheduler sched){
-
 }
 
 

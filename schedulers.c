@@ -9,12 +9,10 @@ struct SchedulerInfo_t {
 } schedule_info = (struct SchedulerInfo_t) {NULL, NULL, 0};
 
 struct scheduler rr = {NULL, NULL, rr_admit, rr_remove, next, qlen};
-scheduler cur_scheduler = &rr;
+scheduler RoundRobin = &rr;
 
-//void print_scheduler();
 void print_sch_thread(thread th); // TODO: exile this 
 
-// FIXME: something wrong here
 void rr_admit(thread new_thread) {
     //if this is the first thread in the list
     //add it and make it point to itself
@@ -111,6 +109,13 @@ int qlen() {
 }
 
 
+void init() {
+    schedule_info.active_thread = NULL;    // No threads in the list initially
+    schedule_info.tail = NULL; //current one? confused when to update this
+    schedule_info.count = 0;      // Start with zero threads
+}
+
+
 void print_scheduler() {
     thread cur = schedule_info.active_thread;
     printf("\n[SCHEDULER QUEUE] active: %p tail: %p len: %d\n", 
@@ -131,4 +136,6 @@ void print_sch_thread(thread th) {
             th, th->tid, th->sched_next, th->sched_prev);
 
 }
+
+
 
