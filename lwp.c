@@ -30,9 +30,27 @@ tid_t lwp_create(lwpfun function, void *argument) {
     // assign it to the thread
     thread_created->tid = ++thread_id_counter;
 
-    // TODO: dumbass rlimit shit for stack size
+    // Check if the stack limit exists
+    size_t stack_size;
+    #ifdef RLIMIT_STACK
+    if (RLIMIT_STACK != RLIM_INFINITY) {
+        if (getrlimit(RLIMIT_STACK, &rlim) < 0) {
+            perror("getrlimit");
+            exit(-1);
+        }
+
+        stack_size = rlim.rlim_cur;
+
+        if (stack_size == RLIM_INFINITY) {
+            stack_size = STACK_SIZE;
+        }
+    }
+    #else
+    stack_size = STACK_SIZE;
+    #endif
+    
     // allocate stack for the thread
-    void *init_ptr = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, 
+    void *init_ptr = mmap(NULL, stack_size, PROT_READ | PROT_WRITE, 
                         MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
     if (init_ptr == MAP_FAILED){
         perror("mmaping stack failed");
@@ -322,7 +340,7 @@ static void add_2_waitlist(thread thread_to_add) {
 }
 
 
-static void insert_waitlist_head (thread thread_to_insert){
+static void insert_waitlist_head (thread thread_to_insert) {
     thread old_head = waitlist_head;
     waitlist_head = thread_to_insert;
     waitlist_head->lib_wl_next = old_head;
@@ -342,7 +360,7 @@ static thread remove_waitlist() {
 }
 
 
-static void add_2_biglist(thread thread_to_add){
+static void add_2_biglist(thread thread_to_add) {
      if (threadlist_head == NULL) {
         threadlist_head = thread_to_add;
         thread_to_add->lib_tl_next = NULL;
@@ -354,23 +372,23 @@ static void add_2_biglist(thread thread_to_add){
 }
 
 
-static void remove_from_big_list(thread thread_to_remove){
+static void remove_from_big_list(thread thread_to_remove) {
     if (threadlist_head == NULL){
         return;
     }
 
     // just one thing and need to remove it
-    if (threadlist_head->lib_tl_next == NULL){
+    if (threadlist_head->lib_tl_next == NULL) {
 
         // check if its the one to remove then remove it
-        if (thread_to_remove->tid == threadlist_head->tid){
+        if (thread_to_remove->tid == threadlist_head->tid) {
             threadlist_head = NULL;
         }
         return;
     }
 
     // case where theres more things and removing head
-    if (threadlist_head->tid == thread_to_remove->tid){
+    if (threadlist_head->tid == thread_to_remove->tid) {
         threadlist_head = threadlist_head->lib_tl_next;
     }
    
@@ -378,7 +396,7 @@ static void remove_from_big_list(thread thread_to_remove){
     thread prev_thread = threadlist_head;
 
     while(cur_thread){
-        if (cur_thread->tid == thread_to_remove->tid){
+        if (cur_thread->tid == thread_to_remove->tid) {
             prev_thread->lib_tl_next = cur_thread->lib_tl_next;
             return;
         }
