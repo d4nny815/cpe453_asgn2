@@ -241,17 +241,11 @@ void lwp_exit(int exitval) {
 
     //waitlist after adding something
 
-    // ? should this be 0 or 1
     if (cur_scheduler->qlen() > 0) {
         lwp_yield();
     } else {
-        // TODO: how do we get back to main?
-        // swap_rfiles(&cur_thread->state, &(tid2thread(main_id)->state));
-        // swap_rfiles(NULL, &(tid2thread(main_id)->state));
-        free(tid2thread(main_id));
+        free(remove_waitlist());
     }
-
-    // TODO: if main is last one free its stuff
 
     return;
 }
