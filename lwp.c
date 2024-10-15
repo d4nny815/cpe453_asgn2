@@ -4,7 +4,6 @@
 static size_t thread_id_counter = 0;
 static thread threadlist_head = NULL; 
 static thread waitlist_head = NULL;
-static thread waitlist_tail = NULL;
 static thread cur_thread = NULL;
 static tid_t main_id = 0;
 
@@ -21,7 +20,7 @@ static void add_2_waitlist(thread thread_to_add);
 static void insert_waitlist_head(thread thread_to_insert);
 static void add_2_biglist(thread thread_to_add);
 static void remove_from_big_list(thread thread_to_remove);
-static int on_wl_o_nah(thread sus_thread);
+static void swap_scheduler(scheduler old, scheduler new);
 
 
 // function creates and returns the TID of the process it created
@@ -35,6 +34,7 @@ tid_t lwp_create(lwpfun function, void *argument) {
     // assign it to the thread
     thread_created->tid = ++thread_id_counter;
 
+    // TODO: dumbass rlimit shit for stack size
     // allocate stack for the thread
     void *init_ptr = mmap(NULL, STACK_SIZE, PROT_READ | PROT_WRITE, 
                         MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
@@ -100,7 +100,6 @@ void lwp_start(void) {
     // assign it to the thread
     thread_main->tid = ++thread_id_counter;
     main_id = thread_main->tid;
-    // ? do I have to put the actual stack size that main has here? or hecksnaw
     thread_main->stack = NULL; 
     thread_main->stacksize = 0;
     thread_main->status = LWP_LIVE;
@@ -127,24 +126,6 @@ void lwp_start(void) {
 
 
 void lwp_yield(void) {
-    // find what the next thread in the cur_schedulerr is
-
-    // take the current thread and make copy so you can update it to next curr
-    // thread old_thread = cur_thread;    
-    // move the old process to back of cur_schedulerr
-    // cur_scheduler->remove(cur_thread);
-    // #ifdef DEBUG
-    // printf("[LWP_YIELD] Th %lu is removing Th %lu\n", 
-    //         cur_thread->tid, cur_thread->tid);
-    // #endif
-    // if (cur_thread && !on_wl_o_nah(cur_thread)) {
-    //     cur_scheduler->admit(cur_thread);
-    //     #ifdef DEBUG
-    //         printf("[LWP_YIELD] Th %lu is admitting Th %lu\n", 
-    //             cur_thread->tid, cur_thread->tid);
-    //     #endif
-    // }
-
     cur_scheduler = lwp_get_scheduler();
     if (cur_scheduler == NULL) {
         cur_scheduler = RoundRobin;
@@ -242,8 +223,8 @@ void lwp_exit(int exitval) {
     // print_scheduler();
     #endif
 
-    //waitlist after adding something
 
+    //waitlist after adding something
     if (cur_scheduler->qlen() > 0) {
         lwp_yield();
     } else {
@@ -257,7 +238,6 @@ void lwp_exit(int exitval) {
 }
 
 
-// ? what is status for?
 tid_t lwp_wait(int *status) {
     thread terminated_thread;
     
@@ -301,21 +281,8 @@ tid_t lwp_wait(int *status) {
         lwp_yield();     
         goto HEHE;  
     }
+
     return NO_THREAD;
-
-    //  if anythings in the waitlist 
-    //      pop waitlist
-    //      if the thread is not the main one
-    //         deallocate it.
-    //      else
-    //         return main TID
-    //  else 
-    //      if more than one in the cur_schedulerr
-    //         remove from cur_schedulerr 
-    //         push to waitlist
-    //      else (there is nothing else)
-    //         return NO_THREAD
-
 }
 
 
@@ -339,9 +306,30 @@ thread tid2thread (tid_t tid) {
 }
 
 
-scheduler lwp_get_scheduler(){
-
+scheduler lwp_get_scheduler() {
     return cur_scheduler;
+}
+
+
+void lwp_set_scheduler(scheduler sched){
+    //if it is null, then just default to round robin 
+    if (cur_scheduler == NULL) {
+        cur_scheduler = RoundRobin;
+    }
+
+    // bad input 
+    if (sched == NULL && cur_scheduler != RoundRobin) {
+        swap_scheduler(cur_scheduler, RoundRobin);
+        return;
+    }
+
+    if (sched == cur_scheduler) {
+        return;
+    }
+
+    swap_scheduler(cur_scheduler, sched);
+
+    return;
 }
 
 
@@ -375,43 +363,18 @@ static void swap_scheduler(scheduler old, scheduler new) {
 }
 
 
-void lwp_set_scheduler(scheduler sched){
-    //if it is null, then just default to round robin 
-    if (cur_scheduler == NULL) {
-        cur_scheduler = RoundRobin;
-    }
-
-    // bad input 
-    if (sched == NULL && cur_scheduler != RoundRobin) {
-        swap_scheduler(cur_scheduler, RoundRobin);
-        return;
-    }
-
-    if (sched == cur_scheduler) {
-        return;
-    }
-
-    swap_scheduler(cur_scheduler, sched);
-
-    return;
-}
-
-
 static void add_2_waitlist(thread thread_to_add) {
     if (waitlist_head == NULL) {
-        // Initialize head if the waitlist is empty
         waitlist_head = thread_to_add;
         thread_to_add->lib_wl_next = NULL;
         return;
     }
 
-    // Traverse to the last element in the list
     thread curr_thread = waitlist_head;
     while (curr_thread->lib_wl_next != NULL) {
         curr_thread = curr_thread->lib_wl_next;
     }
 
-    // Link the new thread at the end of the list
     curr_thread->lib_wl_next = thread_to_add;
     thread_to_add->lib_wl_next = NULL;
 
@@ -426,7 +389,6 @@ static void insert_waitlist_head (thread thread_to_insert){
     thread old_head = waitlist_head;
     waitlist_head = thread_to_insert;
     waitlist_head->lib_wl_next = old_head;
-    waitlist_tail = thread_to_insert; // ? will this always be the case?
 }
 
 
@@ -435,9 +397,6 @@ static thread remove_waitlist() {
         return NULL;
     }
 
-    if (waitlist_head->lib_wl_next == NULL){
-        waitlist_tail = NULL;
-    }
 
     thread thread_removed = waitlist_head;
     waitlist_head = waitlist_head->lib_wl_next;
@@ -448,20 +407,6 @@ static thread remove_waitlist() {
     return thread_removed;
 }
 
-static int on_wl_o_nah(thread sus_thread){
-    if (sus_thread == NULL) {
-        return 0;
-    }
-
-    thread cur = waitlist_head;
-    while (cur != NULL){
-        if (cur->tid == sus_thread->tid){
-            return 1;
-        }
-        cur = cur->lib_wl_next;
-    }
-    return 0;
-}
 
 void print_waitlist() {
     thread current = waitlist_head;

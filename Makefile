@@ -1,11 +1,10 @@
 CC = gcc
 # CFLAGS = -Wall -Wextra -Werror -g -fPIC 
-CFLAGS = -Wall -Wextra -g -fPIC -I.
+CFLAGS = -Wall -Wextra -g -fPIC 
 
 .PHONY: all liblwp clean gdb
 
-# all: dirs liblwp numbers nico_test
-all: liblwp numbers nico_test
+all: liblwp numbers 
 
 # Build library
 liblwp: liblwp.so liblwp.a
@@ -37,14 +36,14 @@ test_schedulers: numbersmain.o schedulers.o
 	$(CC) $(CFLAGS) -L./lib64 -o $@ $^ lib64/libPLN.so -lPLN
 
 # target test case
-nico_test: nico_test.o rr.o
-	$(CC) $(CFLAGS) -L. -o $@ $^ -llwp
+#nico_test: nico_test.o rr.o
+#	$(CC) $(CFLAGS) -L. -o $@ $^ -llwp
 
-nico_test.o: nico_test.c
-	$(CC) $(CFLAGS) -c $< -o $@ 
+#nico_test.o: nico_test.c
+#	$(CC) $(CFLAGS) -c $< -o $@ 
 
-rr.o: rr.c
-	$(CC) $(CFLAGS) -c $< -o $@
+#rr.o: rr.c
+#	$(CC) $(CFLAGS) -c $< -o $@
 
 # house keeping
 clean:
