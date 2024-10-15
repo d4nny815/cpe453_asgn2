@@ -1,0 +1,22 @@
+Launching LWPS
+    1
+         2
+              3
+                   4
+                        5
+         2
+              3
+                   4
+                        5
+A thread exited with status 1
+              3
+                   4
+                        5
+A thread exited with status 2
+                   4
+                        5
+A thread exited with status 3
+                        5
+A thread exited with status 4
+A thread exited with status 5
+Back from LWPS.

@@ -1,0 +1,7 @@
+Is thread library using sched_{one,two}?
+
+This launches a set of threads, then installs a scheduler that 
+intentionally places bogus values in sched_one and sched_two then 
+calls tid2thread() a bunch.
+
+

@@ -1,19 +1,23 @@
 #include "schedulers.h"
 
-void print_active_threads();
-
 struct SchedulerInfo_t {
     thread active_thread;   // the first thread in the scheduler
     thread tail;
     int count;              // amount of threads in scheduler 
 } schedule_info = (struct SchedulerInfo_t) {NULL, NULL, 0};
 
-struct scheduler rr = {NULL, NULL, rr_admit, rr_remove, next, qlen};
+void my_rr_admit(thread new_thread);
+void my_rr_remove(thread victim);
+thread my_next();
+int my_qlen();
+
+struct scheduler rr = {NULL, NULL, my_rr_admit, my_rr_remove, my_next, my_qlen};
 scheduler RoundRobin = &rr;
 
+void print_active_threads();
 void print_sch_thread(thread th); // TODO: exile this 
 
-void rr_admit(thread new_thread) {
+void my_rr_admit(thread new_thread) {
     //if this is the first thread in the list
     //add it and make it point to itself
     //sched_next = sched_next
@@ -50,7 +54,7 @@ void rr_admit(thread new_thread) {
 } 
 
 
-void rr_remove(thread victim) {
+void my_rr_remove(thread victim) {
     // If no threads are in the scheduler, return
     if (schedule_info.active_thread == NULL) {
         return;
@@ -91,7 +95,7 @@ void rr_remove(thread victim) {
     schedule_info.count--;
 }
 
-thread next() {
+thread my_next() {
     if (schedule_info.active_thread == NULL) {
         return NULL;
     }
@@ -104,7 +108,7 @@ thread next() {
 }
 
 
-int qlen() {
+int my_qlen() {
     return schedule_info.count;
 }
 

@@ -1,0 +1,4 @@
+One lwp, calling lwp_yield(), then exit()
+
+This test creates a single thread out of the original thread, yields
+to itself then calls exit().

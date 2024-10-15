@@ -1,0 +1,44 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2023.02.07.21.49.25;	author pnico;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2023.02.07.21.39.22;	author pnico;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@Summary: abbreviated description to fit on a line
+@
+text
+@start().  System thread only.  Calls exit(3);
+
+This will cause the system thread to be turned into an LWP
+then bail.
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+start() with only system thread.  Calls exit(3);
+@

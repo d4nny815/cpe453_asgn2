@@ -14,9 +14,6 @@ extern scheduler RoundRobin;
 
 void print_scheduler();
 
-void rr_admit(thread new_thread);
-void rr_remove(thread victim);
-thread next();
-int qlen();
+
 
 #endif

@@ -1,0 +1,9 @@
+Transfer threads to same scheduler (live)
+
+Create a number of threads, start them running,
+then set_scheduler() to the currently installed
+scheduler.
+
+
+
+

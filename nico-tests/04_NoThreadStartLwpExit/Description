@@ -1,0 +1,5 @@
+start().  System thread only.  Calls lwp_exit();
+
+This will cause the system thread to be turned into an LWP
+then bail.
+

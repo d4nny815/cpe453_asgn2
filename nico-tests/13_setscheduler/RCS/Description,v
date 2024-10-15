@@ -1,0 +1,29 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2023.02.08.00.51.02;	author pnico;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@Five threads, AlwaysZero scheduling
+
+This is the numbersmain program distributed with the assignment,
+but with the scheduler changed to always run the head of the queue.
+Each thread (1..5) exits after its number of iterations.
+
+@

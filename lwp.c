@@ -262,7 +262,9 @@ tid_t lwp_wait(int *status) {
         if (terminated_thread->tid != main_id){
             // deallocate it all
             // put the status of the one terminated into the status pointer 
-            *status = terminated_thread->status;
+            if (status != NULL) {
+                *status = terminated_thread->status;
+            }
             tid_t id_to_return = terminated_thread->tid;
             #ifdef DEBUG
                 printf("[LWP_WAIT] Th %zu is killing thread %lu\n", 
@@ -338,19 +340,24 @@ scheduler lwp_get_scheduler(){
 
 void lwp_set_scheduler(scheduler sched){
     //if it is null, then just default to round robin 
+    if (cur_scheduler == NULL) {
+        cur_scheduler = RoundRobin;
+    }
+
     if (sched == NULL) {
         cur_scheduler = RoundRobin;
         return;
     }
 
     //initialize the new scheduler if it has that function
-    if (&sched->init != 0){
+    if (sched->init != NULL){
         sched->init();
     }
     
     //if the current scheduler is not empty, copy all the active threads over
-    thread curr_thread = cur_scheduler->next();
-    while (curr_thread) {
+    thread curr_thread;
+    while (cur_scheduler->qlen()) {
+        curr_thread = cur_scheduler->next();
 
         //take it out of the old scheduler 
         cur_scheduler->remove(curr_thread);
@@ -359,11 +366,10 @@ void lwp_set_scheduler(scheduler sched){
         sched->admit(curr_thread);
 
         //move to the next thread
-        curr_thread = cur_scheduler->next();
     }
 
     //check if shutdown exists
-    if (&cur_scheduler->shutdown != 0) {
+    if (cur_scheduler->shutdown != NULL) {
         cur_scheduler->shutdown();
     }
 

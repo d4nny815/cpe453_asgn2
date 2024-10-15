@@ -2,53 +2,50 @@ CC = gcc
 # CFLAGS = -Wall -Wextra -Werror -g -fPIC 
 CFLAGS = -Wall -Wextra -g -fPIC 
 
-BUILD_DIR = build
-
-.PHONY: all liblwp dirs clean gdb
+.PHONY: all liblwp clean gdb
 
 # all: dirs liblwp numbers nico_test
-all: dirs liblwp numbers
+all: liblwp numbers
 
 # Build library
 liblwp: liblwp.so liblwp.a
 
-liblwp.so: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o $(BUILD_DIR)/magic64.o
+liblwp.so: lwp.o schedulers.o magic64.o
 	$(CC) $(CFLAGS) -shared -o $@ $^ 
 
-liblwp.a: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o $(BUILD_DIR)/magic64.o
+liblwp.a: lwp.o schedulers.o magic64.o
 	ar rcs $@ $^ 
 
-$(BUILD_DIR)/lwp.o: lwp.c lwp.h 
+lwp.o: lwp.c lwp.h 
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
-$(BUILD_DIR)/schedulers.o: schedulers.c schedulers.h
+schedulers.o: schedulers.c schedulers.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/magic64.o: magic64.S 
+magic64.o: magic64.S 
 	$(CC) $(CFLAGS) -c $< -o $@
-
-dirs: 
-	@mkdir -p $(BUILD_DIR)
 
 # Demo Program
-numbers: $(BUILD_DIR)/numbersmain.o liblwp
+numbers: numbersmain.o liblwp
 	$(CC) $(CFLAGS) -L. -o $@ $< -llwp
 
-$(BUILD_DIR)/numbersmain.o: demos/numbersmain.c lwp.h
+numbersmain.o: demos/numbersmain.c lwp.h
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
 # His lib
-test_schedulers: $(BUILD_DIR)/numbersmain.o $(BUILD_DIR)/schedulers.o
+test_schedulers: numbersmain.o schedulers.o
 	$(CC) $(CFLAGS) -L./lib64 -o $@ $^ lib64/libPLN.so -lPLN
 
 # target test case
-nico_test: $(BUILD_DIR)/nico_test.o liblwp 
-	$(CC) $(CFLAGS) -L. -o $@ $< -llwp
+nico_test: nico_test.o rr.o
+	$(CC) $(CFLAGS) -L. -o $@ $^ -llwp
 
-
-$(BUILD_DIR)/nico_test.o: nico_test.c lwp.h 
+nico_test.o: nico_test.c
 	$(CC) $(CFLAGS) -c $< -o $@ 
+
+rr.o: rr.c 
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # house keeping
 clean:
-	rm -rf $(BUILD_DIR) *.a *.so core.* lwp_test numbers test_schedulers
+	rm -rf *.a *.so core.* lwp_test numbers test_schedulers nico_test
