@@ -155,7 +155,7 @@ void lwp_yield(void) {
     #ifdef DEBUG
     printf("[LWP_YIELD] cur_thread %lu next %lu\n", 
             cur_thread->tid, next_thread->tid);
-    print_scheduler();
+    // print_scheduler();
     #endif
     cur_thread = next_thread;
 
@@ -177,7 +177,10 @@ void lwp_exit(int exitval) {
         cur_scheduler = RoundRobin;
     }
 
-    if (cur_scheduler->qlen() == 0 && (waitlist_head == NULL)) {
+    if (cur_scheduler->qlen() == 0 && waitlist_head == NULL) {
+        #ifdef DEBUG
+        printf("[LWP_EXIT] scheduler and waitlist empty");
+        #endif
         return;
     }
 
@@ -206,7 +209,7 @@ void lwp_exit(int exitval) {
                 printf("[LWP_EXIT] Th %lu is admitting Th %lu\n", 
                         cur_thread->tid, wl_thread->tid);
             }
-            print_scheduler();
+            // print_scheduler();
             #endif
         } else {
             insert_waitlist_head(wl_thread);
@@ -236,7 +239,7 @@ void lwp_exit(int exitval) {
                 cur_thread->tid);
     }
     print_waitlist();
-    print_scheduler();
+    // print_scheduler();
     #endif
 
     //waitlist after adding something
@@ -349,6 +352,10 @@ void lwp_set_scheduler(scheduler sched){
         return;
     }
 
+    // if ((intptr_t)sched == (intptr_t)cur_scheduler) {
+    //     return;
+    // }
+
     //initialize the new scheduler if it has that function
     if (sched->init != NULL){
         sched->init();
@@ -378,18 +385,30 @@ void lwp_set_scheduler(scheduler sched){
 }
 
 
-static void add_2_waitlist (thread thread_to_add) {
+static void add_2_waitlist(thread thread_to_add) {
     if (waitlist_head == NULL) {
+        // Initialize head if the waitlist is empty
         waitlist_head = thread_to_add;
-        waitlist_tail = thread_to_add;
         thread_to_add->lib_wl_next = NULL;
-    } else {
-        waitlist_tail->lib_wl_next = thread_to_add;
-        thread_to_add->lib_wl_next = NULL;
-        waitlist_tail = thread_to_add;
+        return;
     }
+
+    // Traverse to the last element in the list
+    thread curr_thread = waitlist_head;
+    while (curr_thread->lib_wl_next != NULL) {
+        curr_thread = curr_thread->lib_wl_next;
+    }
+
+    // Link the new thread at the end of the list
+    curr_thread->lib_wl_next = thread_to_add;
+    thread_to_add->lib_wl_next = NULL;
+
+    #ifdef DEBUG
+    print_waitlist();
+    #endif
     return;
 }
+
 
 static void insert_waitlist_head (thread thread_to_insert){
     thread old_head = waitlist_head;
@@ -410,6 +429,9 @@ static thread remove_waitlist() {
 
     thread thread_removed = waitlist_head;
     waitlist_head = waitlist_head->lib_wl_next;
+    #ifdef DEBUG
+    printf("[WAITLIST POP] removing Th %zu\n", thread_removed->tid);
+    #endif
 
     return thread_removed;
 }
@@ -439,8 +461,9 @@ void print_waitlist() {
 
     printf("[WAITLIST] Current threads in waitlist:\n");
     while (current) {
-        printf("    Thread ID: %lu, Status: %d\n", 
-            current->tid, current->status);
+        printf("    Thread ID: %lu @ %p Status: %d next %p\n", 
+            current->tid, current,
+            current->status, current->lib_wl_next);
         current = current->lib_wl_next;
     }
 }

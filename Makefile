@@ -5,7 +5,7 @@ CFLAGS = -Wall -Wextra -g -fPIC
 .PHONY: all liblwp clean gdb
 
 # all: dirs liblwp numbers nico_test
-all: liblwp numbers
+all: liblwp numbers nico_test
 
 # Build library
 liblwp: liblwp.so liblwp.a
