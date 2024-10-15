@@ -147,12 +147,6 @@ void lwp_yield(void) {
 
 
 void lwp_exit(int exitval) {
-
-    //waitlist at the start? should be empty 
-    // #ifdef DEBUG
-    // print_waitlist();
-    // #endif
-
     cur_scheduler = lwp_get_scheduler();
     if (cur_scheduler == NULL) {
         cur_scheduler = RoundRobin;
@@ -169,36 +163,6 @@ void lwp_exit(int exitval) {
         return;
     }
 
-    thread wl_thread = remove_waitlist();
-
-    //waitlist after something has been removed
-    // #ifdef DEBUG
-    // print_waitlist();
-    // #endif
-
-    if (wl_thread != NULL) {
-        if (!LWPTERMINATED(wl_thread->status)) {
-
-        cur_scheduler = lwp_get_scheduler();
-        if (cur_scheduler == NULL) {
-            cur_scheduler = RoundRobin;
-        }
-
-            cur_scheduler->admit(wl_thread);
-            #ifdef DEBUG
-            if (cur_thread != NULL) {
-                printf("[LWP_EXIT] Th %lu is admitting Th %lu\n", 
-                        cur_thread->tid, wl_thread->tid);
-            }
-            // print_scheduler();
-            #endif
-        } else {
-            insert_waitlist_head(wl_thread);
-
-            //waitlist afer something has been inserted back in
-            //print_waitlist();
-        }
-    }
 
     // change status
     cur_thread->status = MKTERMSTAT(LWP_TERM, exitval);
@@ -222,6 +186,30 @@ void lwp_exit(int exitval) {
     print_waitlist();
     // print_scheduler();
     #endif
+
+    thread wl_thread = remove_waitlist();
+
+    if (wl_thread != NULL) {
+        if (!LWPTERMINATED(wl_thread->status)) {
+
+        cur_scheduler = lwp_get_scheduler();
+        if (cur_scheduler == NULL) {
+            cur_scheduler = RoundRobin;
+        }
+
+            cur_scheduler->admit(wl_thread);
+            #ifdef DEBUG
+            if (cur_thread != NULL) {
+                printf("[LWP_EXIT] Th %lu is admitting Th %lu\n", 
+                        cur_thread->tid, wl_thread->tid);
+            }
+            // print_scheduler();
+            #endif
+        } else {
+            insert_waitlist_head(wl_thread);
+
+        }
+    }
 
 
     //waitlist after adding something

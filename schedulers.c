@@ -101,10 +101,9 @@ thread my_next() {
     }
 
     // Move to the next thread in the circular list and return it
-    thread ret_thread = schedule_info.active_thread;
     schedule_info.active_thread = schedule_info.active_thread->sched_next;
-    schedule_info.tail = ret_thread;
-    return ret_thread;
+    schedule_info.tail = schedule_info.active_thread->sched_prev;
+    return schedule_info.tail;
 }
 
 
