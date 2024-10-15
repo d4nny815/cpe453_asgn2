@@ -345,35 +345,32 @@ scheduler lwp_get_scheduler(){
 void lwp_set_scheduler(scheduler sched){
     //if it is null, then just default to round robin 
     if (sched == NULL) {
-        sched = cur_scheduler;
+        cur_scheduler = RoundRobin;
+        return;
     }
 
     //initialize the new scheduler if it has that function
-    if (sched->init != NULL){
+    if (&sched->init != 0){
         sched->init();
     }
     
     //if the current scheduler is not empty, copy all the active threads over
-    if (cur_scheduler != NULL) {
-        thread cur_thread;
+    thread curr_thread = cur_scheduler->next();
+    while (curr_thread) {
 
-        while (cur_scheduler->next() != NULL) {
+        //take it out of the old scheduler 
+        cur_scheduler->remove(curr_thread);
 
-            //take it out of the old scheduler 
-            cur_scheduler->remove(cur_thread);
+        //put it into the new scheduler 
+        sched->admit(curr_thread);
 
-            //put it into the new scheduler 
-            sched->admit(cur_thread);
-
-            //move to the next thread
-            cur_thread = cur_scheduler->next();
-        }
-
+        //move to the next thread
+        curr_thread = cur_scheduler->next();
     }
 
     //check if shutdown exists
-    if (sched->shutdown != NULL) {
-        sched->shutdown();
+    if (&cur_scheduler->shutdown != 0) {
+        cur_scheduler->shutdown();
     }
 
     //make the global cur_scheduler point to the right thing
