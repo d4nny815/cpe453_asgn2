@@ -1,33 +1,34 @@
 #include "schedulers.h"
 
-void print_active_threads();
-
 struct SchedulerInfo_t {
     thread active_thread;   // the first thread in the scheduler
     thread tail;
     int count;              // amount of threads in scheduler 
-} schedule = (struct SchedulerInfo_t) {NULL, NULL, 0};
+} schedule_info = (struct SchedulerInfo_t) {NULL, NULL, 0};
 
-struct scheduler rr = {NULL, NULL, rr_admit, rr_remove, next, qlen};
-scheduler round_robin = &rr;
+void my_rr_admit(thread new_thread);
+void my_rr_remove(thread victim);
+thread my_next();
+int my_qlen();
 
-void rr_admit(thread new_thread) {
+struct scheduler rr = {NULL, NULL, my_rr_admit, my_rr_remove, my_next, my_qlen};
+scheduler RoundRobin = &rr;
 
+void my_rr_admit(thread new_thread) {
     //if this is the first thread in the list
     //add it and make it point to itself
     //sched_next = sched_next
     //sched_prev = sched_prev
     //set the head and tail
-    if (schedule.active_thread == NULL) {
+    if (schedule_info.active_thread == NULL) {
         new_thread->sched_next = new_thread;
         new_thread->sched_prev = new_thread;
-        schedule.active_thread = new_thread;
-        schedule.tail = new_thread;
-        schedule.count = 0;
-    } 
-    else {
+        schedule_info.active_thread = new_thread;
+        schedule_info.tail = new_thread;
+        schedule_info.count = 1;
+    } else {
         //find the current tail and add it on
-        thread curtail = schedule.tail;
+        thread curtail = schedule_info.tail;
 
         //current tails sched_next becomes the new thread
         curtail->sched_next = new_thread;
@@ -36,73 +37,83 @@ void rr_admit(thread new_thread) {
         new_thread->sched_prev = curtail;
 
         //the new threads sched_next becomes the start (head)(circles woo)
-        new_thread->sched_next = schedule.active_thread;
+        new_thread->sched_next = schedule_info.active_thread;
 
         //the head's sched_previous becomes the new thread (circles cuz happy)
-        schedule.active_thread->sched_prev = new_thread;
+        schedule_info.active_thread->sched_prev = new_thread;
 
-        schedule.tail = new_thread;
+        schedule_info.tail = new_thread;
+        schedule_info.count++;
     }
 
-    schedule.count++;
-    printf("[RR_ADMIT] thread %lu admited\n", new_thread->tid);
+    return;
 } 
 
-void rr_remove(thread victim){
-    //if nothing in there, return NULL
-    if(schedule.active_thread == NULL){
+
+void my_rr_remove(thread victim) {
+    // If no threads are in the scheduler, return
+    if (schedule_info.active_thread == NULL) {
         return;
     }
 
-    //if one to remove is the head and thats the only one
-    if (schedule.count == 1){
-        victim->sched_next = NULL;
-        victim->sched_prev = NULL;
-
-        //update in the global
-        schedule.active_thread = NULL;
-        schedule.tail = NULL;
-        schedule.count--;
+    // If there's only one thread in the scheduler
+    if (schedule_info.count == 1 && schedule_info.active_thread == victim) {
+        schedule_info.active_thread = NULL;
+        schedule_info.tail = NULL;
+        schedule_info.count = 0;
         return;
     }
 
-    //if one to remove is the head and there are more
-    if (victim == schedule.active_thread){
-        schedule.tail->sched_next = schedule.active_thread->sched_next;
-        schedule.active_thread->sched_next->sched_prev = schedule.tail;
-        
-        //update the global variable cha fel
-        schedule.active_thread = schedule.active_thread->sched_next;
-        
-        schedule.count--;
-        return;
+    // If victim is the head (active_thread) and there are more threads
+    if (victim == schedule_info.active_thread) {
+        schedule_info.tail->sched_next = 
+                schedule_info.active_thread->sched_next;
+        schedule_info.active_thread->sched_next->sched_prev = 
+                schedule_info.tail;
+        schedule_info.active_thread = schedule_info.active_thread->sched_next;
+        schedule_info.active_thread = victim->sched_next;
+    }
+    // If victim is the tail 
+    else if (victim == schedule_info.tail) {
+        schedule_info.tail->sched_prev->sched_next = 
+                schedule_info.active_thread;
+        schedule_info.active_thread->sched_prev = 
+                schedule_info.tail->sched_prev;
+        schedule_info.tail = schedule_info.tail->sched_prev;
+    }
+    // If victim is somewhere in the middle
+    else {
+        victim->sched_next->sched_prev = victim->sched_prev;
+        victim->sched_prev->sched_next = victim->sched_next;
     }
 
-    //if the one to remove is the tail 
-    if (victim == schedule.tail){
-        schedule.tail->sched_prev->sched_next = schedule.active_thread;
-        schedule.active_thread->sched_prev = schedule.tail->sched_prev;
-
-        schedule.tail = schedule.tail->sched_prev; 
-
-        schedule.count--;
-        return;
-    }
-
-    //if its none of those
-    victim->sched_next->sched_prev = victim->sched_prev;
-    victim->sched_prev->sched_next = victim->sched_next;
-    schedule.count--;
-    return;
+    // Decrement the thread count
+    schedule_info.count--;
 }
 
-thread next() {
-    if (schedule.active_thread == NULL){
+thread my_next() {
+    if (schedule_info.active_thread == NULL) {
         return NULL;
     }
-    return schedule.active_thread->sched_next;
+
+    // Move to the next thread in the circular list and return it
+    schedule_info.active_thread = schedule_info.active_thread->sched_next;
+    schedule_info.tail = schedule_info.active_thread->sched_prev;
+    return schedule_info.tail;
 }
 
-int qlen() {
-    return (int)schedule.count;
+
+int my_qlen() {
+    return schedule_info.count;
 }
+
+
+void init() {
+    schedule_info.active_thread = NULL;    // No threads in the list initially
+    schedule_info.tail = NULL; //current one? confused when to update this
+    schedule_info.count = 0;      // Start with zero threads
+}
+
+
+
+

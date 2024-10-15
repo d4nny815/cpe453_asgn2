@@ -1,7 +1,13 @@
 .vscode
 *.a
 *.so
+*.o
 build/
 *.swp
 lwp_test
+numbers
+DETAILS*
 .nfs*
+test_schedulers
+core.*
+test

@@ -94,6 +94,7 @@ extern thread tid2thread(tid_t tid);
 /* prototypes for asm functions */
 void swap_rfiles(rfile *old, rfile *new);
 
-#define WORD_SIZE (sizeof(void*))
+#define WORD_SIZE (sizeof(size_t))
+#define NUM_INJECTED_STACK_WORDS (3)
 
 #endif

@@ -2,44 +2,28 @@ CC = gcc
 # CFLAGS = -Wall -Wextra -Werror -g -fPIC 
 CFLAGS = -Wall -Wextra -g -fPIC 
 
-SRC_DIR = src
-BUILD_DIR = build
-INC_DIR = include
+.PHONY: all liblwp clean gdb
 
-.PHONY: all liblwp dirs clean gdb
-
-all: dirs liblwp lwp_test
+all: liblwp 
 
 # Build library
 liblwp: liblwp.so liblwp.a
 
-liblwp.so: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o $(BUILD_DIR)/magic64.o
+liblwp.so: lwp.o schedulers.o magic64.o
 	$(CC) $(CFLAGS) -shared -o $@ $^ 
 
-liblwp.a: $(BUILD_DIR)/lwp.o $(BUILD_DIR)/schedulers.o $(BUILD_DIR)/magic64.o
+liblwp.a: lwp.o schedulers.o magic64.o
 	ar rcs $@ $^ 
 
-$(BUILD_DIR)/lwp.o: lwp.c lwp.h 
-	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@ 
-
-$(BUILD_DIR)/schedulers.o: schedulers.c schedulers.h
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/magic64.o: magic64.S 
-	$(CC) $(CFLAGS) -c $< -o $@
-
-dirs: 
-	@mkdir -p $(BUILD_DIR)
-
-# Test Program 
-lwp_test: $(BUILD_DIR)/lwp_test.o liblwp
-	$(CC) $(CFLAGS) -L. -o $@ $< -llwp
-
-$(BUILD_DIR)/lwp_test.o: lwp_test.c lwp.h
+lwp.o: lwp.c lwp.h 
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
-gdb: lwp_test
-	gdb ./$<
+schedulers.o: schedulers.c schedulers.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
+magic64.o: magic64.S 
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# house keeping
 clean:
-	rm -rf $(BUILD_DIR) *.a *.so lwp_test
+	rm -rf *.a *.so *.o core.* lwp_test numbers test_schedulers 
