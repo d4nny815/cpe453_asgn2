@@ -247,6 +247,9 @@ void lwp_exit(int exitval) {
     if (cur_scheduler->qlen() > 0) {
         lwp_yield();
     } else {
+        if (cur_scheduler->shutdown != NULL) {
+            cur_scheduler->shutdown();
+        }
         free(remove_waitlist());
     }
 
@@ -341,47 +344,56 @@ scheduler lwp_get_scheduler(){
     return cur_scheduler;
 }
 
+
+static void swap_scheduler(scheduler old, scheduler new) {
+    if (new->init != NULL){
+        new->init();
+    }
+    
+    //if the current scheduler is not empty, copy all the active threads over
+    thread curr_thread = old->next();
+    while (curr_thread) {
+
+        //take it out of the old scheduler 
+        old->remove(curr_thread);
+
+        //put it into the new scheduler 
+        new->admit(curr_thread);
+
+        curr_thread = old->next();
+    }
+
+    //check if shutdown exists
+    if (old->shutdown != NULL) {
+        old->shutdown();
+    }
+
+    //make the global cur_scheduler point to the right thing
+    cur_scheduler = new;
+
+    return;
+}
+
+
 void lwp_set_scheduler(scheduler sched){
     //if it is null, then just default to round robin 
     if (cur_scheduler == NULL) {
         cur_scheduler = RoundRobin;
     }
 
-    if (sched == NULL) {
-        cur_scheduler = RoundRobin;
+    // bad input 
+    if (sched == NULL && cur_scheduler != RoundRobin) {
+        swap_scheduler(cur_scheduler, RoundRobin);
         return;
     }
 
-    // if ((intptr_t)sched == (intptr_t)cur_scheduler) {
-    //     return;
-    // }
-
-    //initialize the new scheduler if it has that function
-    if (sched->init != NULL){
-        sched->init();
-    }
-    
-    //if the current scheduler is not empty, copy all the active threads over
-    thread curr_thread;
-    while (cur_scheduler->qlen()) {
-        curr_thread = cur_scheduler->next();
-
-        //take it out of the old scheduler 
-        cur_scheduler->remove(curr_thread);
-
-        //put it into the new scheduler 
-        sched->admit(curr_thread);
-
-        //move to the next thread
+    if (sched == cur_scheduler) {
+        return;
     }
 
-    //check if shutdown exists
-    if (cur_scheduler->shutdown != NULL) {
-        cur_scheduler->shutdown();
-    }
+    swap_scheduler(cur_scheduler, sched);
 
-    //make the global cur_scheduler point to the right thing
-    cur_scheduler = sched;
+    return;
 }
 
 

@@ -1,6 +1,6 @@
 CC = gcc
 # CFLAGS = -Wall -Wextra -Werror -g -fPIC 
-CFLAGS = -Wall -Wextra -g -fPIC 
+CFLAGS = -Wall -Wextra -g -fPIC -I.
 
 .PHONY: all liblwp clean gdb
 
@@ -43,9 +43,9 @@ nico_test: nico_test.o rr.o
 nico_test.o: nico_test.c
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
-rr.o: rr.c 
+rr.o: rr.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # house keeping
 clean:
-	rm -rf *.a *.so core.* lwp_test numbers test_schedulers nico_test
+	rm -rf *.a *.so *.o core.* lwp_test numbers test_schedulers nico_test
