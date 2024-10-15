@@ -12,8 +12,5 @@ extern scheduler ChooseHighestColor;
 extern scheduler ChooseLowestColor;
 extern scheduler RoundRobin;
 
-void print_scheduler();
-
-
 
 #endif

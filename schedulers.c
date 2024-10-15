@@ -14,9 +14,6 @@ int my_qlen();
 struct scheduler rr = {NULL, NULL, my_rr_admit, my_rr_remove, my_next, my_qlen};
 scheduler RoundRobin = &rr;
 
-void print_active_threads();
-void print_sch_thread(thread th); // TODO: exile this 
-
 void my_rr_admit(thread new_thread) {
     //if this is the first thread in the list
     //add it and make it point to itself
@@ -49,7 +46,6 @@ void my_rr_admit(thread new_thread) {
         schedule_info.count++;
     }
 
-    //printf("[RR_ADMIT] thread %lu admited\n", new_thread->tid);
     return;
 } 
 
@@ -118,27 +114,6 @@ void init() {
     schedule_info.count = 0;      // Start with zero threads
 }
 
-
-void print_scheduler() {
-    thread cur = schedule_info.active_thread;
-    printf("\n[SCHEDULER QUEUE] active: %p tail: %p len: %d\n", 
-            schedule_info.active_thread, schedule_info.tail, 
-            schedule_info.count);
-    if (cur == NULL) return;
-    do {
-        print_sch_thread(cur);
-        cur = cur->sched_next;
-    } while (cur->tid != schedule_info.active_thread->tid);
-
-    printf("[END OF QUEUE]\n\n");
-}
-
-
-void print_sch_thread(thread th) {
-    printf("thread %p ID: %lu sched_next %p sched_prev %p\n", 
-            th, th->tid, th->sched_next, th->sched_prev);
-
-}
 
 
 
