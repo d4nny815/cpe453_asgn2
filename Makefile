@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -g -fPIC
 
 .PHONY: all liblwp clean gdb
 
-all: liblwp numbers nico_test
+all: liblwp 
 
 # Build library
 liblwp: liblwp.so liblwp.a
@@ -24,27 +24,6 @@ schedulers.o: schedulers.c schedulers.h
 magic64.o: magic64.S 
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Demo Program
-numbers: numbersmain.o liblwp
-	$(CC) $(CFLAGS) -L. -o $@ $< -llwp
-
-numbersmain.o: demos/numbersmain.c lwp.h
-	$(CC) $(CFLAGS) -c $< -o $@ 
-
-# His lib
-test_schedulers: numbersmain.o schedulers.o
-	$(CC) $(CFLAGS) -L./lib64 -o $@ $^ lib64/libPLN.so -lPLN
-
-# target test case
-nico_test: nico_test.o rr.o
-	$(CC) $(CFLAGS) -L. -o $@ $^ -llwp
-
-nico_test.o: nico_test.c
-	$(CC) $(CFLAGS) -c $< -o $@ 
-
-rr.o: rr.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
 # house keeping
 clean:
-	rm -rf *.a *.so *.o core.* lwp_test numbers test_schedulers nico_test
+	rm -rf *.a *.so *.o core.* lwp_test numbers test_schedulers 
