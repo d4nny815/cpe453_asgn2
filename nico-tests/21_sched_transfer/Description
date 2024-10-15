@@ -1,8 +1,0 @@
-Transfer threads between schedulers (stopped)
-
-Create a number of threads, then set_scheduler() and see if 
-they transfer properly.
-
-
-
-

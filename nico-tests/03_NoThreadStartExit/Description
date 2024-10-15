@@ -1,5 +1,0 @@
-start().  System thread only.  Calls exit(3);
-
-This will cause the system thread to be turned into an LWP
-then bail.
-
