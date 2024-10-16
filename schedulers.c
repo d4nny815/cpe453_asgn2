@@ -1,5 +1,8 @@
 #include "schedulers.h"
 
+#define sched_next sched_one
+#define sched_prev sched_two
+
 struct SchedulerInfo_t {
     thread active_thread;   // the first thread in the scheduler
     thread tail;

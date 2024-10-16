@@ -1,5 +1,8 @@
 #include "lwp.h"
 
+#define lib_wl_next lib_one
+#define lib_tl_next lib_two
+
 static size_t thread_id_counter = 0;
 static thread threadlist_head = NULL; 
 static thread waitlist_head = NULL;
@@ -60,16 +63,15 @@ tid_t lwp_create(lwpfun function, void *argument) {
 
     // fill in the thread struct details
     intptr_t old_bp = (intptr_t) init_ptr;    
-    void* p_fr_bp = (void*)((intptr_t) init_ptr + STACK_SIZE - WORD_SIZE);
-    thread_created->stack = (unsigned long*) p_fr_bp; 
+    thread_created->stack = (unsigned long*) init_ptr; 
     thread_created->stacksize = STACK_SIZE;
-    thread_created->stack = LWP_LIVE;
 
     // inject into the stack, return address, old base pointer*
+    void* p_fr_bp = (void*)((intptr_t) init_ptr + STACK_SIZE - WORD_SIZE);
     unsigned long* p_stack = (unsigned long*) p_fr_bp;;
     p_stack[0] = (unsigned long) lwp_exit;
     p_stack[-1] = (unsigned long) lwp_wrap; // RA 
-    p_stack[-2] = (unsigned long) old_bp;
+    p_stack[-2] = (unsigned long) old_bp; // Dont think this matters
 
     // create an initial rfile
     rfile* init_rfile = &thread_created->state;
@@ -101,7 +103,6 @@ tid_t lwp_create(lwpfun function, void *argument) {
 void lwp_start(void) {
     // create a thread to be the main process 
     thread thread_main = (thread) malloc(sizeof(context));
-
     if(thread_main == NULL) {
         return; 
     }
@@ -125,7 +126,7 @@ void lwp_start(void) {
     // admit new thread to the cur_schedulerr
     cur_scheduler->admit(thread_main);
 
-    //  call yield
+    // call yield
     lwp_yield();
 }
 
@@ -140,7 +141,7 @@ void lwp_yield(void) {
     thread next_thread = cur_scheduler->next();
     cur_thread = next_thread;
 
-    // swap that hoeeeee
+    // swap that hoee
     swap_rfiles(&old_thread->state, &cur_thread->state);
 }
 
@@ -209,7 +210,7 @@ tid_t lwp_wait(int *status) {
     
     RUN_IT_BACK:
     if (waitlist_head) { 
-        // take the oldest terminated therad out from the waitlist 
+        // take the oldest terminated thread out from the waitlist 
         terminated_thread = remove_waitlist();
         if (terminated_thread->tid != main_id){
             // deallocate it all
@@ -219,8 +220,11 @@ tid_t lwp_wait(int *status) {
             }
             tid_t id_to_return = terminated_thread->tid;
             remove_from_big_list(terminated_thread);
-            munmap((void*)((intptr_t)terminated_thread - STACK_SIZE), 
-                    STACK_SIZE);
+            int err = munmap((void*)(terminated_thread->stack), STACK_SIZE);
+            if (err == -1) {
+                perror("Failed to free a thread's stack");
+                exit(1);
+            }
             free(terminated_thread);
             return id_to_return;
         }
@@ -275,7 +279,7 @@ void lwp_set_scheduler(scheduler sched){
         cur_scheduler = RoundRobin;
     }
 
-    // bad input 
+    // bad input and already changed from default
     if (sched == NULL && cur_scheduler != RoundRobin) {
         swap_scheduler(cur_scheduler, RoundRobin);
         return;

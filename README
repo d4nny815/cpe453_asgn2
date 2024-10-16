@@ -1,36 +1,12 @@
-Contents of this directory
-
-demos:
-	This includes a few small programs that use the LWP library.
-	Bear in mind that these are, in fact, fairly gentle on the
-	library, but they give something to link against.
-
-lib64:
-	This includes archive versions of my LWP library and
-	of the snakes library. You can use them or sub in your
-	own.
-
-	Remember, to run the demos, you'll have to include this
-	directory in your LD_LIBRARY_PATH
-
-include:
-	This has the headers you'll need:
-	
-	fp.h:     everything you need to save the floating point state
-	lwp.h:    header for the LWP library
-	snakes.h: header for the snakes library
-
-
-
-____________________________________________________________________________________________________________________
-Task 1: Making the Round Robin Scheduler
-
-Pseudocode: the scheduler will be a round robin scheduler implemented with a circular linked list
+Names: Advika Deodhar and Daniel Gutierrez
+Special Instructions: N/A 
+To know while grading: Nothing much! This was actually pretty cool to learn. Below is all of our pseudocode we wrote while going about this project.
+_________________________________________________________________________________________________________
+Scheduler: the scheduler will be a round robin scheduler implemented with a circular linked list
 - first make a circular linked list. each node will represent each thread that is going to be scheduled
 - when new threads are created, they will be added to the end of the linked list (queue) 
 
 Structs: 
-
 schedulerInfo struct: keeps track of the start of the circular linked list and the amount of nodes
 - need this because later on I will need to know where my first thread is and how many there are total
 
@@ -39,18 +15,17 @@ threadinfo_st struct: was given to us, holds all the data to the thread info
 - the sched_one will be the ->next field, and the sched_two will be the ->prev field 
 
 Schedule struct: was given to us, has pointers to each function? acts like an interace? 
-- I dont know what this does or means yet
+- holds the 
 
 Functions: 
-
 init(): supposed to be called before any threads are put in the scheduler
 - makes one of the nodes the head of the list
 - keep a count of how many threads are being scheduled
 
 admit(thread newThread): take the new thread and add it to the list
 - check if there is nothing in the list already
-	- that means this is the first node, so make it point to itself to keep it circular
-	- update in the global struct that this is the head
+- that means this is the first node, so make it point to itself to keep it circular
+- update in the global struct that this is the head
 - if the list is not empty, go through until you are at the end (until the next = head)
 - add the new node there
 - make its next point to the head and its prev is the node before it
@@ -87,21 +62,17 @@ void shutdown(): need to deallocate everything
 deallocateStuff(thread the_thread): should deallocate all the resources used by that respective thread
 - spec says to use munmap to free the stack
 - anything else need to be deallocated like registers? idk aobut that
-____________________________________________________________________________________________________________________
-Task 2: write lwp_create();
 
-How to Go About it: 
-
+Overall How To: 
 - Allocate enough stack size using mmap 
 - set up all the context
-	- the registers, the stack pointers
+- the registers, the stack pointers
 - call admit and add the thread to the scheduler
 
 Stacks:
 - we are using mmap because that creates independent sections of memory
 - we can tell if where to create that and how much to give and a bunch of permissions
 - mmap returns a pointer to where that memory chunk starts
-- 
 
 Create:
 - create thread ID (counter)
@@ -111,10 +82,6 @@ Create:
 *put the wrapper address into the respective register*
 - put the function argument into the respective register
 - admit it into the scheduler 
-
-QUESTIONS TO ANSWER STILL:
-- what is the old base pointer? 
-
 
 PIVITOL THINGS WE HAVE LEARNED:
 - when the thread starts, mmap returns a pointer to the stack
@@ -133,7 +100,6 @@ PIVITOL THINGS WE HAVE LEARNED:
 - the thread that is now running upon start pops the pointer to the wrapper off and puts it into the rip
 - the instruction pointer is now pointing to there, and that is what makes it run.
 
-
 Start: 
 - start is going to make context for the main 
 - the main is a thread in itself
@@ -146,24 +112,18 @@ Yield:
 - move current process to end of scheduler if not on the waitlist
 - get the next process to run
 - swap r files 
-
-
 - should call next from the scheduler to see which thread is next
 - calls swap r files with the curernt thread and the next thread 
-
 
 Exit: 
 - takes in the threads status
 - take the current thread and add it to the wait list 
 - take the current threat and remove it from the scheduler
-
-// pop off the head 
-    // check if the term status is not term (it is waiting)
-    //      put back in cur_schedulerr 
-    // else 
-    //      insert it into the waitlist before the head
-
-    //if the scheduler is empty and nothing in the waitlist then do nothing
+- pop off the head 
+- check if the term status is not term (it is waiting)
+- put back in cur_schedulerr 
+- else insert it into the waitlist before the head
+- if the scheduler is empty and nothing in the waitlist then do nothing
 
 Wait: 
 - check if there is only one process in the scheduler
@@ -172,23 +132,10 @@ Wait:
 - check if the status of that process is TERM 
 - if the term is not then 
 - check if the process is main
-	- if so, we don't want to dealloate that 
+- if so, we don't want to dealloate that 
 - deallocate the stacks stack frame
 - if there are no terminated threads
-	- need to block until it terminates 
-	- remove it from the scheduler 
-		- if there is only one thing in the scheduler (qlen = 1) 
-		- return NO_TERM
-
- - only one list for both the exited and the wait 
- - check the status of the thread to know which one is waiting and one is exited 
- - once it is exited, put it 
- 
-
-
-- first check if terminated threads exist (check if the wait list has something)
-- if they dont, then do something idk
-- if there are terminated ones, return the last one in the list (FIFO)
-- 
-- 
-
+- need to block until it terminates 
+- remove it from the scheduler 
+- if there is only one thing in the scheduler (qlen = 1) 
+- return NO_TERM
